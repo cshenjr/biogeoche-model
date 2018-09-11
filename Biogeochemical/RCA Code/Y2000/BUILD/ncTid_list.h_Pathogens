@@ -1,0 +1,17 @@
+!
+!=======================================================================
+!  RCA variables                                                       !
+!                                 YUN LI, UMCES/HPL, Feb-17-2011       !
+!=======================================================================
+!
+!  system variables of Pathogens tuner
+!
+        idTvar(1)=idpath_SAL
+        idTvar(2)=idTRACR
+        idTvar(3)=idTCOLI
+        idTvar(4)=idFCOLI
+        idTvar(5)=idENTERO
+!
+!  2D-parameters of Pathogens tuner
+!
+        id2Dpm(1)=idKEBS

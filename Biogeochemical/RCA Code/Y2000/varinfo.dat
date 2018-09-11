@@ -1,0 +1,3522 @@
+!
+!  ROMS-RCA I/O NetCDF variables.
+!
+!==============================================================================
+!                                                                             !
+!  This file contains all RCA forcing Input/system Output variables info.  It !
+!  is used to manage NetCDF files.  The following information is needed for   !
+!  any I/O variable:                                                          !
+!                                                                             !
+!       Vinfo(1)      Field variable name.                                    !
+!       Vinfo(2)      Long-name attribute.                                    !
+!       Vinfo(3)      Units attribute.                                        !
+!       Vinfo(4)      Field type attribute.                                   !
+!       Vinfo(5)      Associated time variable name.                          !
+!       Vinfo(6)      Index variable name used in information arrays.         !
+!       Vinfo(7)      Staggered C-grid variable type:                         !
+!                       'n0dvar' => 0D time-independent variable.             !
+!                       'n1dvar' => 1D time-independent variable.             !
+!                       'n2dvar' => 2D time-independent variable.             !
+!                       't1dvar' => 1D time-dependent variable.               !
+!                       't2dvar' => 2D time-dependent variable.               !
+!                       'g2dvar' => 2D time-dependent grided variable         ! 
+!                       'g3dvar' => 3D time-dependent grided variable         ! 
+!                                                                             !
+!       Fscale         Scale to convert input data to model units.            !
+!                                                                             !
+!  Enclose Vinfo variables with single quotes so this file can be read with   !
+!  a free format statement.  The  Vinfo(6) variable must be unique and case   !
+!  sensitive.  It is checked in "ncset_ncparams.f" to set the appropiate ID   !
+!  for the information arrays.                                                !
+!                                                                             !
+!  Notice that there is commented information for each variable  including    !
+!  input/output type and internal model units in brackets.  There are some    !
+!  variables that are special and require a particular units for Input and    !
+!  and output.                                                                !
+!                                                                             !
+!                                               YUN LI, Feb-12-2011           !
+!==============================================================================
+!
+!------------------------------------------------------------------------------
+!  Model dimension variables.
+!------------------------------------------------------------------------------
+!
+'x_r'                                              ! Input/Output
+  'Number of Cells in (x-) XI-dir in model domain'
+  'nondimensional'                                 ! [1]
+  'number, scalar, series'
+  'null'
+  'idNX'
+  'n1dvar'
+  1.0d0
+
+'y_r'                                              ! Input/Output
+  'Number of Cells in (y-) ETA-dir in model domain'
+  'nondimensional'                                 ! [1]
+  'number, scalar, series'
+  'null'
+  'idNY'
+  'n1dvar'
+  1.0d0
+
+'s_r'                                              ! Input/Output
+  'Number of Cells in Z-dir in model domain'
+  'nondimensional'                                 ! [1]
+  'number, scalar, series'
+  'null'
+  'idNZ'
+  'n1dvar'
+  1.0d0
+
+'s_w'                                              ! Input/Output
+  'Number of levels in Z-dir in model domain'
+  'nondimensional'                                 ! [1]
+  'number, scalar, series'
+  'null' 
+  'idNZZ'
+  'n1dvar'
+  1.0d0
+
+'group'                                            ! Input/Output
+  'Number of groups of CPOP, CPON, CPOC'
+  'nondimensional'                                 ! [1]
+  'number, scalar, series'
+  'null'
+  'idNG'
+  'n1dvar'
+  1.0d0
+
+'system'                                           ! Input/Output
+  'Number of systems in the biogoechemical model'
+  'nondimensional'                                 ! [1]
+  'number, scalar, series'
+  'null'
+  'idNSYS'
+  'n1dvar'
+  1.0d0
+!
+!------------------------------------------------------------------------------
+!  Model grid variables.
+!------------------------------------------------------------------------------
+!
+'LAT'                                              ! Input/Output
+  'latitude at cell center'
+  'degree'                                         ! [degree]
+  'latitude, scalar, series'
+  'null'
+  'idLAT'
+  'n2dvar'
+  1.0d0
+
+'LON'                                              ! Input/Output
+  'latitude at cell center'
+  'degree'                                         ! [degree]
+  'longitude, scalar, series'
+  'null'
+  'idLON'
+  'n2dvar'
+  1.0d0
+
+'H'                                                ! Input/Output
+  'mean water depth'
+  'meter'                                          ! [m]
+  'bathymetry, scalar, series'
+  'null'
+  'idH'
+  'n2dvar'
+  1.0d0
+
+'DX'                                               ! Input/Output
+  'length of each water cell'
+  'meter'                                          ! [m]
+  'length, scalar, series'
+  'null'
+  'idDX'
+  'n2dvar'
+  1.0d0
+
+'DY'                                               ! Input/Output
+  'width of each water cell'
+  'meter'                                          ! [m]
+  'length, scalar, series'
+  'null'
+  'idDY'
+  'n2dvar'
+  1.0d0
+
+'DZ'                                               ! Input/Output
+  'thickness of each sigma-level'
+  'nondimensional'                                 ! [1]
+  'length fraction, scalar, series'
+  'null'
+  'idDZ'
+  'n1dvar'
+  1.0d0
+
+'DZZ'                                              ! Input/Output
+  'averaged thickness between levels'
+  'nondimensional'                                 ! [1]
+  'length fraction, scalar, series'                
+  'null'
+  'idDZZ'
+  'n1dvar'
+  1.0d0
+
+'FSM'                                              ! Input/Output
+  'land mask, 1=water, 0=land, -1=river BC, -2=ocean BC'
+  'nondimensional'                                 ! [1]
+  'mask, scalar, series'
+  'null'
+  'idFSM'
+  'n2dvar'
+  1.0d0
+!
+!------------------------------------------------------------------------------
+!  Initial Options and Conditions
+!------------------------------------------------------------------------------
+!
+'TIME'                                             ! Input
+  'time for intial condition'
+  'DAYS'                                           ! [DAYS]
+  'time, scalar, series'
+  'TIME'
+  'idini_time'
+  't1dvar'
+  1.0d0
+!
+!------------------------------------------------------------------------------
+!  Boundary Options and Conditions
+!------------------------------------------------------------------------------
+!
+'IBCOPT'                                           ! Input
+  'boundary condition options, 1=f(S-level),2=fun(t,S-level),3=f(Z-level),4=f(t,Z-level)'
+  'nondimensional'                                 ! [1]
+  'option number, scalar, series'
+  'null'
+  'idIBCOPT'
+  'n0dvar'
+  1.0d0
+
+'IBCPWLOPT'                                        ! Input
+  'temporal interpolation option, 0=step-function,2=piecewise linear'
+  'nondimensional'                                 ! [1]
+  'option number, scalar, series'
+  'null'
+  'idIBCPWLOPT'
+  'n0dvar'
+  1.0d0
+
+'bry_time'                                         ! Input
+  'boundary time'
+  'DAYS'                                           ! [DAYS]
+  'time, scalar, series'
+  'bry_time'
+  'idbry_time'
+  't1dvar'
+  1.0d0
+
+'river_'                                           ! Input
+  'riverine boundary condition'
+  'tracer unit'                                    ! 
+  'concentration, scalar, series'
+  'bry_time'
+  'idriver'
+  't1dvar'
+  1.0d0
+
+'_east'                                            ! Input
+  'eastern boundary condition'
+  'tracer unit'                                    ! 
+  'concentration, scalar, series'
+  'bry_time'
+  'ideast'
+  't2dvar'
+  1.0d0
+
+'_west'                                            ! Input
+  'western boundary condition'
+  'tracer unit'                                    ! 
+  'concentration, scalar, series'
+  'bry_time'
+  'idwest'
+  't2dvar'
+  1.0d0
+
+'_north'                                           ! Input
+  'northern boundary condition'
+  'tracer unit'                                    ! 
+  'concentration, scalar, series'
+  'bry_time'
+  'idnorth'
+  't2dvar'
+  1.0d0
+
+'_south'                                           ! Input
+  'northern boundary condition'
+  'tracer unit'                                    !
+  'concentration, scalar, series'
+  'bry_time'
+  'idsouth'
+  't2dvar'
+  1.0d0
+!
+!------------------------------------------------------------------------------
+!  10sTest model output.
+!------------------------------------------------------------------------------
+!
+'TIME'                                             ! Output
+  'time since initialization'
+  'days'                                           ! [days]
+  'time, scalar, series'
+  'TIME'
+  'id10s_TIME'
+  't1dvar'
+  1.0d0
+
+'ETA'                                              ! Output
+  'sea level'
+  'meter'                                          ! [meter]
+  'sea level scalar, series'
+  'TIME'
+  'id10s_ETA'
+  'g2dvar'
+  1.0d0
+
+'SAL'                                              ! Input/Output
+  'salinity'
+  'PPT'                                            ! [PPT]
+  'salinity, scalar, series'
+  'TIME'
+  'id10s_CONC'
+  'g3dvar'
+  1.0d0
+!
+!------------------------------------------------------------------------------
+!  10sTest model output with global dump performed.
+!------------------------------------------------------------------------------
+!
+'SAL_GDA'                                          ! Input/Output
+  'salinity'
+  'PPT'                                            ! [PPT]
+  'salinity, scalar, series'
+  'TIME'
+  'id10s_CONC_GDA'
+  'g3dvar'
+  1.0d0
+!
+!------------------------------------------------------------------------------
+!  Pathogens model 2D and 3D parameter input.
+!------------------------------------------------------------------------------
+!
+!'KEBS'    :  Eutrophication 2D and 3D parameter INPUT list
+!
+!------------------------------------------------------------------------------
+!  Pathogens model output.
+!------------------------------------------------------------------------------
+!
+'TIME'                                             ! Output
+  'time since initialization'
+  'days'                                           ! [days]
+  'time, scalar, series'
+  'TIME'
+  'idpath_TIME'
+  't1dvar'
+  1.0d0
+
+'ETA'                                              ! Output
+  'sea level'
+  'meter'                                          ! [meter]
+  'sea level, scalar, series'
+  'TIME'
+  'idpath_ETA'
+  'g2dvar'
+  1.0d0
+
+'SAL'                                              ! Input/Output
+  'salinity'
+  'PPT'                                            ! [PPT]
+  'salinity, scalar, series'
+  'TIME'
+  'idpath_SAL'
+  'g3dvar'
+  1.0d0
+
+'TRACR'                                            ! Output
+  'tracer or total residual Chlorine' 
+  'MG/L'                                           ! [MG/L]
+  'tracer, scalar, series'
+  'TIME'
+  'idTRACR'
+  'g3dvar'
+  1.0d0
+
+'TCOLI'                                            ! Output
+  'total Coliform bacteria'
+  '#/100mL'                                        ! [number/100mL]
+  'bacteria number, scalar, series'
+  'TIME'
+  'idTCOLI'
+  'g3dvar'
+  1.0d0
+
+'FCOLI'                                            ! Output
+  'fecal Coliform bacteria'
+  '#/100mL'                                        ! [number/100mL]
+  'bacteria number, scalar, series'
+  'TIME'
+  'idFCOLI'
+  'g3dvar'
+  1.0d0
+
+'ENTERO'                                           ! Output
+  'Enterococci'
+  '#/100mL'                                        ! [number/100mL]
+  'bacteria number, scalar, series'
+  'TIME'
+  'idENTERO'
+  'g3dvar'
+  1.0d0
+!
+!------------------------------------------------------------------------------
+!  Pathogens model output with global dump performed.
+!------------------------------------------------------------------------------
+!
+'SAL_GDA'                                          ! Input/Output
+  'salinity'
+  'PPT'                                            ! [PPT]
+  'salinity, scalar, series'
+  'TIME'
+  'idpath_SAL_GDA'
+  'g3dvar'
+  1.0d0
+
+'TRACR_GDA'                                        ! Output
+  'tracer or total residual Chlorine'
+  'MG/L'                                           ! [MG/L]
+  'tracer, scalar, series'
+  'TIME'
+  'idTRACR_GDA'
+  'g3dvar'
+  1.0d0
+
+'TCOLI_GDA'                                        ! Output
+  'total Coliform bacteria'
+  '#/100mL'                                        ! [number/100mL]
+  'bacteria number, scalar, series'
+  'TIME'
+  'idTCOLI_GDA'
+  'g3dvar'
+  1.0d0
+
+'FCOLI_GDA'                                        ! Output
+  'fecal Coliform bacteria'
+  '#/100mL'                                        ! [number/100mL]
+  'bacteria number, scalar, series'
+  'TIME'
+  'idFCOLI_GDA'
+  'g3dvar'
+  1.0d0
+
+'ENTERO_GDA'                                       ! Output
+  'Enterococci'
+  '#/100mL'                                        ! [number/100mL]
+  'bacteria number, scalar, series'
+  'TIME'
+  'idENTERO_GDA'
+  'g3dvar'
+  1.0d0
+!
+!------------------------------------------------------------------------------
+!  Eutrophication state variable input (omit what same as output)
+!------------------------------------------------------------------------------
+!
+!'SAL'    :  OUTPUT list
+!'PHYT1'  :  OUTPUT list
+!'PHYT2'  :  OUTPUT list
+!'PHYT3'  :  OUTPUT list
+!
+'RPOP'                                            ! Input
+  'refractory POP'
+  'MG P/L'                                        ! [MG P/L]
+  'POP, scalar, series'
+  'TIME'
+  'idRPOP'
+  'g3dvar'
+  1.0d0
+
+'LPOP'                                            ! Input
+  'labile POP'
+  'MG P/L'                                        ! [MG P/L]
+  'POP, scalar, series'
+  'TIME'
+  'idLPOP'
+  'g3dvar'
+  1.0d0
+
+'RDOP'                                            ! Input
+  'refractory DOP'
+  'MG P/L'                                        ! [MG P/L]
+  'DOP, scalar, series'
+  'TIME'
+  'idRDOP'
+  'g3dvar'
+  1.0d0
+
+'LDOP'                                            ! Input
+  'labile DOP'
+  'MG P/L'                                        ! [MG P/L]
+  'DOP, scalar, series'
+  'TIME'
+  'idLDOP'
+  'g3dvar'
+  1.0d0
+
+'PO4T'                                            ! Input
+  'total dissolved inorganic P'
+  'MG P/L'                                        ! [MG P/L]
+  'PO4T, scalar, series'
+  'TIME'
+  'idPO4T'
+  'g3dvar'
+  1.0d0
+
+'RPON'                                            ! Input
+  'refractory PON'
+  'MG N/L'                                        ! [MG N/L]
+  'PON, scalar, series'
+  'TIME'
+  'idRPON'
+  'g3dvar'
+  1.0d0
+
+'LPON'                                            ! Input
+  'labile PON'
+  'MG N/L'                                        ! [MG N/L]
+  'PON, scalar, series'
+  'TIME'
+  'idLPON'
+  'g3dvar'
+  1.0d0
+
+'RDON'                                            ! Input
+  'refractory DON'
+  'MG N/L'                                        ! [MG N/L]
+  'DON, scalar, series'
+  'TIME'
+  'idRDON'
+  'g3dvar'
+  1.0d0
+
+'LDON'                                            ! Input
+  'labile DON'
+  'MG N/L'                                        ! [MG N/L]
+  'DON, scalar, series'
+  'TIME'
+  'idLDON'
+  'g3dvar'
+  1.0d0
+
+'NH4T'                                            ! Input
+  'total ammonia'
+  'MG N/L'                                        ! [MG N/L]
+  'NH4, scalar, series'
+  'TIME'
+  'idNH4T'
+  'g3dvar'
+  1.0d0
+!
+!'NO23'   :  OUTPUT list
+!
+'BSI'                                             ! Input
+  'biogenic unavailable SI'
+  'MG SI/L'                                       ! [MG SI/L]
+  'SI, scalar, series'
+  'TIME'
+  'idBSI'
+  'g3dvar'
+  1.0d0
+
+'SIT'                                             ! Input
+  'total inorganic SI'
+  'MG SI/L'                                       ! [MG SI/L]
+  'SI, scalar, series'
+  'TIME'
+  'idSIT'
+  'g3dvar'
+  1.0d0
+
+'RPOC'                                            ! Input
+  'refractory POC'
+  'MG C/L'                                        ! [MG C/L]
+  'POC, scalar, series'
+  'TIME'
+  'idRPOC'
+  'g3dvar'
+  1.0d0
+
+'LPOC'                                            ! Input
+  'labile POC'
+  'MG C/L'                                        ! [MG C/L]
+  'POC, scalar, series'
+  'TIME'
+  'idLPOC'
+  'g3dvar'
+  1.0d0
+
+'RDOC'                                            ! Input
+  'refractory DOC'
+  'MG C/L'                                        ! [MG C/L]
+  'DOC, scalar, series'
+  'TIME'
+  'idRDOC'
+  'g3dvar'
+  1.0d0
+
+'LDOC'                                            ! Input
+  'labile DOC'
+  'MG C/L'                                        ! [MG C/L]
+  'DOC, scalar, series'
+  'TIME'
+  'idLDOC'
+  'g3dvar'
+  1.0d0
+
+'EXDOC'                                           ! Input
+  'algal exudate DOC'
+  'MG C/L'                                        ! [MG C/L]
+  'DOC, scalar, series'
+  'TIME'
+  'idEXDOC'
+  'g3dvar'
+  1.0d0
+
+'REPOC'                                           ! Input
+  'reactive POC'
+  'MG C/L'                                        ! [MG C/L]
+  'POC, scalar, series'
+  'TIME'
+  'idREPOC'
+  'g3dvar'
+  1.0d0
+
+'REDOC'                                           ! Input
+  'reactive DOC'
+  'MG C/L'                                        ! [MG C/L]
+  'DOC, scalar, series'
+  'TIME'
+  'idREDOC'
+  'g3dvar'
+  1.0d0
+!
+!'O2EQ'   :  OUTPUT list
+!
+'DO'                                              ! Input
+  'dissolved oxygen'
+  'MG O2/L'                                       ! [MG O2/L]
+  'DO, scalar, series'
+  'TIME'
+  'idDO'
+  'g3dvar'
+  1.0d0
+!
+!-------------------------------------------------------------------------------
+!  Eutrophication model 2D and 3D parameter input
+!-------------------------------------------------------------------------------
+!
+'KL'                                              ! Input
+  'transfer coefficient for reareation'
+  'M/DAY'                                         ! [M/DAY]
+  'pistal velocity, scalar, series'
+  'null'
+  'idKL'
+  'n2dvar'
+  1.0d0
+
+'VSNET1'                                          ! Input
+  'setting efficiency for algal Group1 - Winter Diatoms'
+  'M/DAY'                                         ! [M/DAY]
+  'setting efficiency, scalar, series'
+  'null'
+  'idVSNET1'
+  'n2dvar'
+  1.0d0
+
+'VSNET2'                                          ! Input
+  'setting efficiency for algal Group2 - Summer Assemblage'
+  'M/DAY'                                         ! [M/DAY]
+  'setting efficiency, scalar, series'
+  'null'
+  'idVSNET2'
+  'n2dvar'
+  1.0d0
+
+'VSNET3'                                          ! Input
+  'setting efficiency for algal Group2 - Fall Assemblage'
+  'M/DAY'                                         ! [M/DAY]
+  'setting efficiency, scalar, series'
+  'null'
+  'idVSNET3'
+  'n2dvar'
+  1.0d0
+
+'VSNET4'                                          ! Input
+  'setting efficiency for algal Group2 - nonliving POM'
+  'M/DAY'                                         ! [M/DAY]
+  'setting efficiency, scalar, series'
+  'null'
+  'idVSNET4'
+  'n2dvar'
+  1.0d0
+
+'KEBS'                                            ! Input
+  'base extinction coefficient'
+  '1/M'                                           ! [1/M]
+  'extinction coefficient, scalar, series'
+  'null'
+  'idKEBS'
+  'n2dvar'
+  1.0d0
+
+'SSLDS'                                           ! Input
+  'concentration of suspended solids'
+  'MG SS/L'                                       ! [MG SS/L]
+  'concentration, scalar, series'
+  'null'
+  'idSSLDS'
+  'n3dvar'
+  1.0d0
+
+'ITOTSF'                                          ! Input
+  'total daily solar radiation'
+  'LY/DAY'                                        ! [LY/DAY]
+  'radiation, scalar, series'
+  'ITOTSF_time'
+  'idITOTSF'
+  't1dvar'
+  1.0d0
+
+'ITOTSF_time'                                     ! Input
+  'time of total daily solar radiation'
+  'DAYS'                                          ! [DAYS]
+  'time, scalar, series'
+  'ITOTSF_time'
+  'idITOTSF_time'
+  't1dvar'
+  1.0d0
+
+'F'                                               ! Input
+  'fraction of daylight'
+  'DAY'                                           ! [DAY]
+  'fraction of daylight, scalar, series'
+  'null'
+  'idF'
+  't1dvar'
+  1.0d0
+
+'F_time'                                          ! Input
+  'time of fraction of daylight'
+  'DAYS'                                          ! [DAYS]
+  'time, scalar, series'
+  'F_time'
+  'idF_time'
+  't1dvar'
+  1.0d0
+
+'WIND'                                            ! Input
+  'wind speed'
+  'M/SEC'                                         ! [M/SEC]
+  'speed, scalar, series'
+  'WIND_time'
+  'idWIND'
+  't1dvar'
+  1.0d0
+
+'WIND_time'                                       ! Input
+  'time of wind'
+  'DAYS'                                          ! [DAYS]
+  'time, scalar, series'
+  'WIND_time'
+  'idWIND_time'
+  't1dvar'
+  1.0d0
+
+'KETVF'                                           ! Input
+  'extinction coefficient'
+  '1/M'                                           ! [1/M]
+  'coefficient, scalar, series'
+  'KETVF_time'
+  'idKETVF'
+  't1dvar'
+  1.0d0
+
+'KETVF_time'                                      ! Input
+  'time of extinction coefficient'
+  'DAYS'                                          ! [DAYS]
+  'time, scalar, series'
+  'KETVF_time'
+  'idKETVF_time'
+  't1dvar'
+  1.0d0
+
+'TSS'                                             ! Input
+  'total suspended solids'
+  'MG/L'                                          ! [MG/L]
+  'concentration, scalar, series'
+  'TSS_time'
+  'idTSS'
+  't2dvar'
+  1.0d0
+
+'TSS_time'                                        ! Input
+  'time of TSS'
+  'DAYS'                                          ! [DAYS]
+  'time, scalar, series'
+  'TSS_time'
+  'idTSS_time'
+  't1dvar'
+  1.0d0
+!
+!------------------------------------------------------------------------------
+!  Eutrophication model output.
+!------------------------------------------------------------------------------
+!
+'TIME'                                            ! Output
+  'time since initialization'
+  'days'                                          ! [days]
+  'time, scalar, series'
+  'TIME'
+  'ideutro_TIME'
+  't1dvar'
+  1.0d0
+
+'ETA'                                             ! Output
+  'sea level'
+  'meter'                                         ! [meter]
+  'sea level, scalar, series'
+  'TIME'
+  'ideutro_ETA'
+  'g2dvar'
+  1.0d0
+
+'SAL'                                             ! Input/Output
+  'salinity'
+  'nondimensional'                                ! [PSU]
+  'salinity, scalar, series'
+  'TIME'
+  'ideutro_SAL'
+  'g3dvar'
+  1.0d0
+
+'PHYT1'                                           ! Input/Output
+  'winter diatoms'
+  'MG C/L'                                        ! [MG C/L]
+  'phytoplankton, scalar, series'
+  'TIME'
+  'idPHYT1'
+  'g3dvar'
+  1.0d0
+
+'PHYT2'                                           ! Input/Output
+  'summer assemblage'
+  'MG C/L'                                        ! [MG C/L]
+  'phytoplankton, scalar, series'
+  'TIME'
+  'idPHYT2'
+  'g3dvar'
+  1.0d0
+
+'PHYT3'                                           ! Input/Output
+  'fall assemblage'
+  'MG C/L'                                        ! [MG C/L]
+  'phytoplankton, scalar, series'
+  'TIME'
+  'idPHYT3'
+  'g3dvar'
+  1.0d0
+
+'TPOP'                                            ! Output
+  'total particulate organic phosphorus'
+  'MG P/L'                                        ! [MG P/L]
+  'POP, scalar, series'
+  'TIME'
+  'idTPOP'
+  'g3dvar'
+  1.0d0
+
+'TDOP'                                            ! Output
+  'total dissolved organic phosphorus'
+  'MG P/L'                                        ! [MG P/L]
+  'DOP, scalar, series'
+  'TIME'
+  'idTDOP'
+  'g3dvar'
+  1.0d0
+
+'DPO4'                                            ! Output
+  'dissolved PO4'
+  'MG P/L'                                        ! [MG P/L]
+  'DPO4, scalar, series'
+  'TIME'
+  'idDPO4'
+  'g3dvar'
+  1.0d0
+
+'TPON'                                            ! Output
+  'total particulate organic nitrogen'
+  'MG N/L'                                        ! [MG N/L]
+  'PON, scalar, series'
+  'TIME'
+  'idTPON'
+  'g3dvar'
+  1.0d0
+
+'TDON'                                            ! Output
+  'total dissolved organic nitrogen'
+  'MG N/L'                                        ! [MG N/L]
+  'DON, scalar, series'
+  'TIME'
+  'idTDON'
+  'g3dvar'
+  1.0d0
+
+'DNH4'                                            ! Output
+  'dissolved ammonia'
+  'MG N/L'                                        ! [MG N/L]
+  'NH4, scalar, series'
+  'TIME'
+  'idDNH4'
+  'g3dvar'
+  1.0d0
+
+'NO23'                                            ! Input/Output
+  'nitrite and nitrate'
+  'MG N/L'                                        ! [MG N/L]
+  'NO23, scalar, series'
+  'TIME'
+  'idNO23'
+  'g3dvar'
+  1.0d0
+
+'TPSI'                                            ! Output
+  'total particulate silica'
+  'MG SI/L'                                       ! [MG SI/L]
+  'PSI, scalar, series'
+  'TIME'
+  'idTPSI'
+  'g3dvar'
+  1.0d0
+
+'DSI'                                             ! Output
+  'total dissolved silica'
+  'MG SI/L'                                       ! [MG SI/L]
+  'DSI, scalar, series'
+  'TIME'
+  'idDSI'
+  'g3dvar'
+  1.0d0
+
+'TPOC'                                            ! Output
+  'total particulate organic carbon'
+  'MG C/L'                                        ! [MG C/L]
+  'POC, scalar, series'
+  'TIME'
+  'idTPOC'
+  'g3dvar'
+  1.0d0
+
+'TDOC'                                            ! Output
+  'total dissolved organic carbon'
+  'MG C/L'                                        ! [MG C/L]
+  'DOC, scalar, series'
+  'TIME'
+  'idTDOC'
+  'g3dvar'
+  1.0d0
+
+'O2EQ'                                            ! Input/Output
+  'AQUEOUS SOD'
+  'MG O2/L'                                       ! [MG O2/L]
+  'O2EQ, scalar, series'
+  'TIME'
+  'idO2EQ'
+  'g3dvar'
+  1.0d0
+
+'DOAVEG'                                          ! Output
+  'averaged DO'
+  'MG O2/L'                                       ! [MG O2/L]
+  'DO, scalar, series'
+  'TIME'
+  'idDOAVEG'
+  'g3dvar'
+  1.0d0
+
+'DOMING'                                          ! Output
+  'minimum DO'
+  'MG O2/L'                                       ! [MG O2/L]
+  'DO, scalar, series'
+  'TIME'
+  'idDOMING'
+  'g3dvar'
+  1.0d0
+
+'DOMAXG'                                          ! Output
+  'maximum DO'
+  'MG O2/L'                                       ! [MG O2/L]
+  'DO, scalar, series'
+  'TIME'
+  'idDOMAXG'
+  'g3dvar'
+  1.0d0
+
+'HYDSAL'                                          ! Output
+  'hydrodynamic model computed salinity'
+  'nondimensional'                                ! [PSU]
+  'salinity, scalar, series'
+  'TIME'
+  'idHYDSAL'
+  'g3dvar'
+  1.0d0
+
+'CHLAVEG'                                         ! Output
+  'averaged CHLa'
+  'MG CHL/L'                                      ! [MG CHL/L]
+  'CHLa, scalar, series'
+  'TIME'
+  'idCHLAVEG'
+  'g3dvar'
+  1.0d0
+
+'REDOC'
+  'dissolved inorganic carbon'
+  'MG/L'
+  'REDOC'
+  'TIME'  
+  'idREDOC'
+  'g3dvar'
+  1.0d0
+   
+'REPOC'
+  'total alkalinity'
+  'MG/L'
+  'REPOC'
+  'TIME'  
+  'idREPOC'
+  'g3dvar'
+  1.0d0
+
+!'CHLMING'                                         ! Output       !!!SCQ
+!  'minimum CHLa'
+!  'MG CHL/L'                                      ! [MG CHL/L]
+!  'CHLa, scalar, series'
+!  'TIME'
+!  'idCHLMING'
+!  'g3dvar'
+!  1.0d0
+
+!'CHLMAXG'                                         ! Output
+!  'maximum CHLa'
+!  'MG CHL/L'                                      ! [MG CHL/L]
+!  'CHLa, scalar, series'
+!  'TIME'
+!  'idCHLMAXG'
+!  'g3dvar'
+!  1.0d0
+
+'TGPP'                                            ! Output
+  'total gross PP integrated to 1% light level'
+  'MG C/M^2/DAY'                                  ! [MG C/M^2/DAY]
+  'production, scalar, series'
+  'TIME'
+  'idTGPP'
+  'g3dvar'
+  1.0d0
+
+'TNPP'                                            ! Output
+  'total net PP integrated to 1% light level'
+  'MG C/M^2/DAY'                                  ! [MG C/M^2/DAY]
+  'production, scalar, series'
+  'TIME'
+  'idTNPP'
+  'g3dvar'
+  1.0d0
+
+'TRESP'                                           ! Output
+  'total respiration'
+  'MG O2/M^3/DAY'                                 ! [MG O2/m^3/DAY]
+  'respiration, scalar, series'
+  'TIME'
+  'idTRESP'
+  'g3dvar'
+  1.0d0
+
+'HYDTEMP'                                         ! Output
+  'hydrodynamic model computered temperature'
+  'CELSIUS'                                       ! [CELSIUS]
+  'temperature, scalar, series'
+  'TIME'                                     
+  'idHYDTEMP'
+  'g3dvar'
+  1.0d0
+
+'SKE'                                             ! Output
+  'extinction coefficient'
+  '1/M'                                           ! [1/M]
+  'extinction coefficient, scalar, series'
+  'TIME'                                     
+  'idSKE'
+  'g3dvar'
+  1.0d0
+!
+!------------------------------------------------------------------------------
+!  Eutrophication model output with global dump performed.
+!------------------------------------------------------------------------------
+!
+'SAL_GDA'                                         ! Input/Output
+  'salinity'
+  'nondimensional'                                ! [PSU]
+  'salinity, scalar, series'
+  'TIME'
+  'ideutro_SAL_GDA'
+  'g3dvar'
+  1.0d0
+
+'PHYT1_GDA'                                       ! Output
+  'winter diatoms'
+  'MG C/L'                                        ! [MG C/L]
+  'phytoplankton, scalar, series'
+  'TIME'
+  'idPHYT1_GDA'
+  'g3dvar'
+  1.0d0
+
+'PHYT2_GDA'                                       ! Output
+  'summer assemblage'
+  'MG C/L'                                        ! [MG C/L]
+  'phytoplankton, scalar, series'
+  'TIME'
+  'idPHYT2_GDA'
+  'g3dvar'
+  1.0d0
+
+'PHYT3_GDA'                                       ! Output
+  'fall assemblage'
+  'MG C/L'                                        ! [MG C/L]
+  'phytoplankton, scalar, series'
+  'TIME'
+  'idPHYT3_GDA'
+  'g3dvar'
+  1.0d0
+
+'TPOP_GDA'                                        ! Output
+  'total particulate organic phosphorus'
+  'MG P/L'                                        ! [MG P/L]
+  'POP, scalar, series'
+  'TIME'
+  'idTPOP_GDA'
+  'g3dvar'
+  1.0d0
+
+'TDOP_GDA'                                        ! Output
+  'total dissolved organic phosphorus'
+  'MG P/L'                                        ! [MG P/L]
+  'DOP, scalar, series'
+  'TIME'
+  'idTDOP_GDA'
+  'g3dvar'
+  1.0d0
+
+'DPO4_GDA'                                        ! Output
+  'dissolved PO4'
+  'MG P/L'                                        ! [MG P/L]
+  'DPO4, scalar, series'
+  'TIME'
+  'idDPO4_GDA'
+  'g3dvar'
+  1.0d0
+
+'TPON_GDA'                                        ! Output
+  'total particulate organic nitrogen'
+  'MG N/L'                                        ! [MG N/L]
+  'PON, scalar, series'
+  'TIME'
+  'idTPON_GDA'
+  'g3dvar'
+  1.0d0
+
+'TDON_GDA'                                        ! Output
+  'total dissolved organic nitrogen'
+  'MG N/L'                                        ! [MG N/L]
+  'DON, scalar, series'
+  'TIME'
+  'idTDON_GDA'
+  'g3dvar'
+  1.0d0
+
+'DNH4_GDA'                                        ! Output
+  'dissolved ammonia'
+  'MG N/L'                                        ! [MG N/L]
+  'NH4, scalar, series'
+  'TIME'
+  'idDNH4_GDA'
+  'g3dvar'
+  1.0d0
+
+'NO23_GDA'                                        ! Output
+  'nitrite and nitrate'
+  'MG N/L'                                        ! [MG N/L]
+  'NO23, scalar, series'
+  'TIME'
+  'idNO23_GDA'
+  'g3dvar'
+  1.0d0
+
+'TPSI_GDA'                                        ! Output
+  'total particulate silica'
+  'MG SI/L'                                       ! [MG SI/L]
+  'PSI, scalar, series'
+  'TIME'
+  'idTPSI_GDA'
+  'g3dvar'
+  1.0d0
+
+'DSI_GDA'                                         ! Output
+  'total dissolved silica'
+  'MG SI/L'                                       ! [MG SI/L]
+  'DSI, scalar, series'
+  'TIME'
+  'idDSI_GDA'
+  'g3dvar'
+  1.0d0
+
+'TPOC_GDA'                                        ! Output
+  'total particulate organic carbon'
+  'MG C/L'                                        ! [MG C/L]
+  'POC, scalar, series'
+  'TIME'
+  'idTPOC_GDA'
+  'g3dvar'
+  1.0d0
+
+'TDOC_GDA'                                        ! Output
+  'total dissolved organic carbon'
+  'MG C/L'                                        ! [MG C/L]
+  'DOC, scalar, series'
+  'TIME'
+  'idTDOC_GDA'
+  'g3dvar'
+  1.0d0
+
+'O2EQ_GDA'                                        ! Output
+  'AQUEOUS SOD'
+  'MG O2/L'                                       ! [MG O2/L]
+  'O2EQ, scalar, series'
+  'TIME'
+  'idO2EQ_GDA'
+  'g3dvar'
+  1.0d0
+
+'DOAVEG_GDA'                                      ! Output
+  'averaged DO'
+  'MG O2/L'                                       ! [MG O2/L]
+  'DO, scalar, series'
+  'TIME'
+  'idDOAVEG_GDA'
+  'g3dvar'
+  1.0d0
+
+'DOMING_GDA'                                      ! Output
+  'minimum DO'
+  'MG O2/L'                                       ! [MG O2/L]
+  'DO, scalar, series'
+  'TIME'
+  'idDOMING_GDA'
+  'g3dvar'
+  1.0d0
+
+'DOMAXG_GDA'                                      ! Output
+  'maximum DO'
+  'MG O2/L'                                       ! [MG O2/L]
+  'DO, scalar, series'
+  'TIME'
+  'idDOMAXG_GDA'
+  'g3dvar'
+  1.0d0
+
+'HYDSAL_GDA'                                      ! Output
+  'hydrodynamic model computed salinity'
+  'nondimensional'                                ! [PSU]
+  'salinity, scalar, series'
+  'TIME'
+  'idHYDSAL_GDA'
+  'g3dvar'
+  1.0d0
+
+'CHLAVEG_GDA'                                     ! Output
+  'averaged CHLa'
+  'MG CHL/L'                                      ! [MG CHL/L]
+  'CHLa, scalar, series'
+  'TIME' 
+  'idCHLAVEG_GDA'
+  'g3dvar'
+  1.0d0
+
+'CHLMING_GDA'                                     ! Output
+  'minimum CHLa'
+  'MG CHL/L'                                      ! [MG CHL/L]
+  'CHLa, scalar, series'
+  'TIME'
+  'idCHLMING_GDA'
+  'g3dvar'
+  1.0d0
+
+'CHLMAXG_GDA'                                     ! Output
+  'maximum CHLa'
+  'MG CHL/L'                                      ! [MG CHL/L]
+  'CHLa, scalar, series'
+  'TIME'
+  'idCHLMAXG_GDA'
+  'g3dvar'
+  1.0d0
+
+'TGPP_GDA'                                        ! Output
+  'total gross PP integrated to 1% light level'
+  'MG C/M^2/DAY'                                  ! [MG C/M^2/DAY]
+  'production, scalar, series'
+  'TIME'
+  'idTGPP_GDA'
+  'g3dvar'
+  1.0d0
+
+'TNPP_GDA'                                        ! Output
+  'total net PP integrated to 1% light level'
+  'MG C/M^2/DAY'                                  ! [MG C/M^2/DAY]
+  'production, scalar, series'
+  'TIME'
+  'idTNPP_GDA'
+  'g3dvar'
+  1.0d0
+
+'TRESP_GDA'                                       ! Output
+  'total respiration'
+  'MG C/M^3/DAY'                                  ! [MG C/m^3/DAY]
+  'respiration, scalar, series'
+  'TIME'
+  'idTRESP_GDA'
+  'g3dvar'
+  1.0d0
+
+'HYDTMP_GDA'                                      ! Output
+  'hydrodynamic model computered temperature'
+  'CELSIUS'                                       ! [CELSIUS]
+  'temperature, scalar, series'
+  'TIME'
+  'idHYDTMP_GDA'
+  'g3dvar'
+  1.0d0
+
+'SKE_GDA'                                         ! Output
+  'extinction coefficient'
+  '1/M'                                           ! [1/M]
+  'extinction coefficient, scalar, series'
+  'TIME'
+  'idSKE_GDA'
+  'g3dvar'
+  1.0d0
+!
+!------------------------------------------------------------------------------
+!  Hydrodynamic forcing diagnostics
+!------------------------------------------------------------------------------
+!
+'QX'                                              ! Output
+  'transport in X-direction'
+  'M^3/DAY'                                       ! [M^3/DAY]
+  'transport, scalar, series'
+  'TIME'
+  'iddia_QX'
+  'g3dvar'
+  1.0d0
+
+'QY'                                              ! Output
+  'transport in Y-direction'
+  'M^3/DAY'                                       ! [M^3/DAY]
+  'transport, scalar, series'
+  'TIME'
+  'iddia_QY'
+  'g3dvar'
+  1.0d0
+
+'QZ'                                              ! Output
+  'transport in Z-direction'
+  'M^3/DAY'                                       ! [M^3/DAY]
+  'transport, scalar, series'
+  'TIME'
+  'iddia_QZ'
+  'g3dvar'
+  1.0d0
+
+'RX'                                              ! Output
+  'diffusive exchange in X-direction'
+  'M^3/DAY'                                       ! [M^3/DAY]
+  'diffusion, scalar, series'
+  'TIME'
+  'iddia_RX'
+  'g3dvar'
+  1.0d0
+
+'RY'                                              ! Output
+  'diffusive exchange in Y-direction'
+  'M^3/DAY'                                       ! [M^3/DAY]
+  'diffusion, scalar, series'
+  'TIME'
+  'iddia_RY'
+  'g3dvar'
+  1.0d0
+
+'RZ'                                              ! Output
+  'diffusive exchange in Z-direction'
+  'M^3/DAY'                                       ! [M^3/DAY]
+  'diffusion, scalar, series'
+  'TIME'
+  'iddia_RZ'
+  'g3dvar'
+  1.0d0
+!
+!------------------------------------------------------------------------------
+!  Eutrophication model diagnostics
+!------------------------------------------------------------------------------
+!
+'dia_ATTENL'                                      ! Output
+  'dignostics light attenuation'
+  'LY/DAY'                                        ! [LY/DAY]
+  'light attenuation, scalar, series'
+  'TIME'
+  'iddia_ATTENL'
+  'g3dvar'
+  1.0d0
+
+'dia_GPP1'                                        ! Output
+  'diagnostics GPP1'
+  'MG C/L/DAY'                                    ! [MG C/L/DAY]
+  'gross growth rate, scalar, series'
+  'TIME'
+  'iddia_GPP1'
+  'g3dvar'
+  1.0d0
+
+'dia_RESPR1'                                      ! Output
+  'diagnostics resp part in GPP1'
+  '1/DAY'                                         ! [1/DAY]
+  'respiration limited rate, scalar, series'
+  'TIME'
+  'iddia_RESPR1'
+  'g3dvar'
+  1.0d0
+
+'dia_K1C'                                         ! Output
+  'diagnostics K1C part in GPP1'
+  '1/DAY'                                         ! [1/DAY]
+  'nutrient limited rate, scalar, series'
+  'TIME'
+  'iddia_K1C'
+  'g3dvar'
+  1.0d0
+
+'dia_RNUTR1'                                      ! Output
+  'diagnostics RNUTR1'
+  'null'                                          ! [null]
+  'growth rate reduction due to nutrient limitation, scalar, series'
+  'TIME'
+  'iddia_RNUTR1'
+  'g3dvar'
+  1.0d0
+
+'dia_RLGHT1'                                      ! Output
+  'diagnostics RLGHT1'
+  'null'                                          ! [null]
+  'growth rate reduction due to light conditions, scalar, series'
+  'TIME'
+  'iddia_RLGHT1'
+  'g3dvar'
+  1.0d0
+
+'dia_GITMAX1'                                     ! Output
+  'diagnostics GITMAX1'
+  '1/DAY'                                         ! [1/DAY]
+  'temperature corrected growth rate, scalar, series'
+  'TIME'
+  'iddia_GITMAX1'
+  'g3dvar'
+  1.0d0
+
+'dia_K1CNSAT'                                     ! Output
+  'diagnostics K1CNSAT'
+  '1/DAY'                                         ! [1/DAY]
+  'nutrient saturated growth rate, scalar, series'
+  'TIME'
+  'iddia_K1CNSAT'
+  'g3dvar'
+  1.0d0
+
+'dia_RESP1'                                       ! Output
+  'diagnostics RESP1'
+  'MG C/L/DAY'                                    ! [MG C/L/DAY]
+  'respiration rate, scalar, series'
+  'TIME'
+  'iddia_RESP1'
+  'g3dvar'
+  1.0d0
+
+'dia_GRAZ1'                                       ! Output
+  'diagnostics GRAZ1'
+  'MG C/L/DAY'                                    ! [MG C/L/DAY]
+  'grazing rate, scalar, series'
+  'TIME'
+  'iddia_GRAZ1'
+  'g3dvar'
+  1.0d0
+
+'dia_ALG1SET'                                     ! Output
+  'diagnostics ALG1SET'
+  'MG C/L/DAY'                                    ! [MG C/L/DAY]
+  'settling rate, scalar, series'
+  'TIME'
+  'iddia_ALG1SET'
+  'g3dvar'
+  1.0d0
+
+'dia_XEMP11'                                      ! Output
+  'diagnostics XEMP11'
+  'null'                                          ! [null]
+  'PHYT1 growth rate reduction due to N-limitation, scalar, series'
+  'TIME'
+  'iddia_XEMP11'
+  'g3dvar'
+  1.0d0
+
+'dia_XEMP12'                                      ! Output
+  'diagnostics XEMP12'
+  'null'                                          ! [null]
+  'PHYT1 growth rate reduction due to P-limitation, scalar, series'
+  'TIME'
+  'iddia_XEMP12'
+  'g3dvar'
+  1.0d0
+
+'dia_XEMP13'                                      ! Output
+  'diagnostics XEMP13'
+  'null'                                          ! [null]
+  'PHYT1 growth rate reduction due to Si-limitation, scalar, series'
+  'TIME'
+  'iddia_XEMP13'
+  'g3dvar'
+  1.0d0
+
+'dia_DAVEI1'                                      ! Output
+  'diagnostics DAVEI1'
+  'QUANTA/M2'                                     ! [QUANTA/M2]
+  'PHYT1 depth averaged light, scalar, series'
+  'TIME'
+  'iddia_DAVEI1'
+  'g3dvar'
+  1.0d0
+
+
+'dia_GPP2'                                        ! Output
+  'diagnostics GPP2'
+  'MG C/L/DAY'                                    ! [MG C/L/DAY]
+  'gross growth rate, scalar, series'
+  'TIME'
+  'iddia_GPP2'
+  'g3dvar'
+  1.0d0
+
+'dia_RESPR2'                                      ! Output
+  'diagnostics resp part in GPP2'
+  '1/DAY'                                         ! [1/DAY]
+  'respiration limited rate, scalar, series'
+  'TIME'
+  'iddia_RESPR2'
+  'g3dvar'
+  1.0d0
+
+'dia_K2C'                                         ! Output
+  'diagnostics K2C part in GPP2'
+  '1/DAY'                                         ! [1/DAY]
+  'nutrient limited rate, scalar, series'
+  'TIME'
+  'iddia_K2C'
+  'g3dvar'
+  1.0d0
+
+'dia_RNUTR2'                                      ! Output
+  'diagnostics RNUTR2'
+  'null'                                          ! [null]
+  'growth rate reduction due to nutrient limitation, scalar, series'
+  'TIME'
+  'iddia_RNUTR2'
+  'g3dvar'
+  1.0d0
+
+'dia_RLGHT2'                                      ! Output
+  'diagnostics RLGHT2'
+  'null'                                          ! [null]
+  'growth rate reduction due to light conditions, scalar, series'
+  'TIME'
+  'iddia_RLGHT2'
+  'g3dvar'
+  1.0d0
+
+'dia_GITMAX2'                                     ! Output
+  'diagnostics GITMAX2'
+  '1/DAY'                                         ! [1/DAY]
+  'temperature corrected growth rate, scalar, series'
+  'TIME'
+  'iddia_GITMAX2'
+  'g3dvar'
+  1.0d0
+
+
+'dia_K2CNSAT'                                     ! Output
+  'diagnostics K2CNSAT'
+  '1/DAY'                                         ! [1/DAY]
+  'nutrient saturated growth rate, scalar, series'
+  'TIME'
+  'iddia_K2CNSAT'
+  'g3dvar'
+  1.0d0
+
+'dia_RESP2'                                       ! Output
+  'diagnostics RESP2'
+  'MG C/L/DAY'                                    ! [MG C/L/DAY]
+  'respiration rate, scalar, series'
+  'TIME'
+  'iddia_RESP2'
+  'g3dvar'
+  1.0d0
+
+'dia_GRAZ2'                                       ! Output
+  'diagnostics GRAZ2'
+  'MG C/L/DAY'                                    ! [MG C/L/DAY]
+  'grazing rate, scalar, series'
+  'TIME'
+  'iddia_GRAZ2'
+  'g3dvar'
+  1.0d0
+
+'dia_ALG2SET'                                     ! Output
+  'diagnostics ALG2SET'
+  'MG C/L/DAY'                                    ! [MG C/L/DAY]
+  'settling rate, scalar, series'
+  'TIME'
+  'iddia_ALG2SET'
+  'g3dvar'
+  1.0d0
+
+'dia_XEMP21'                                      ! Output
+  'diagnostics XEMP21'
+  'null'                                          ! [null]
+  'PHYT2 growth rate reduction due to N-limitation, scalar, series'
+  'TIME'
+  'iddia_XEMP21'
+  'g3dvar'
+  1.0d0
+
+'dia_XEMP22'                                      ! Output
+  'diagnostics XEMP22'
+  'null'                                          ! [null]
+  'PHYT2 growth rate reduction due to P-limitation, scalar, series'
+  'TIME'      
+  'iddia_XEMP22'
+  'g3dvar'    
+  1.0d0
+
+'dia_XEMP23'                                      ! Output
+  'diagnostics XEMP23'
+  'null'                                          ! [null]
+  'PHYT2 growth rate reduction due to Si-limitation, scalar, series'
+  'TIME'      
+  'iddia_XEMP23'
+  'g3dvar'    
+  1.0d0
+
+'dia_DAVEI2'                                      ! Output
+  'diagnostics DAVEI2'
+  'QUANTA/M2'                                     ! [QUANTA/M2]
+  'PHYT2 depth averaged light, scalar, series'
+  'TIME'      
+  'iddia_DAVEI2'
+  'g3dvar'    
+  1.0d0
+  
+!!!!!!!!!!!!!!!!!!!!!SCQ  
+'dia_TA_NH4'                                      ! Output
+  'diagnostics DAVEI2'
+  'QUANTA/M2'                                     ! [QUANTA/M2]
+  'PHYT2 depth averaged light, scalar, series'
+  'TIME'      
+  'iddia_ANH4'
+  'g3dvar'    
+  1.0d0  
+
+'dia_TA_NO23'                                      ! Output
+  'diagnostics DAVEI2'
+  'QUANTA/M2'                                     ! [QUANTA/M2]
+  'PHYT2 depth averaged light, scalar, series'
+  'TIME'      
+  'iddia_ANO23'
+  'g3dvar'    
+  1.0d0  
+  
+'dia_DIC_GR'                                      ! Output
+  'diagnostics DAVEI2'
+  'QUANTA/M2'                                     ! [QUANTA/M2]
+  'PHYT2 depth averaged light, scalar, series'
+  'TIME'      
+  'iddia_CGR'
+  'g3dvar'    
+  1.0d0  
+  
+'dia_DIC_RE'                                      ! Output
+  'diagnostics DAVEI2'
+  'QUANTA/M2'                                     ! [QUANTA/M2]
+  'PHYT2 depth averaged light, scalar, series'
+  'TIME'      
+  'iddia_CRE'
+  'g3dvar'    
+  1.0d0  
+  
+'dia_DIC_OX'                                      ! Output
+  'diagnostics DAVEI2'
+  'QUANTA/M2'                                     ! [QUANTA/M2]
+  'PHYT2 depth averaged light, scalar, series'
+  'TIME'      
+  'iddia_COX'
+  'g3dvar'    
+  1.0d0  
+  
+'dia_DIC_DI'                                      ! Output
+  'diagnostics DAVEI2'
+  'QUANTA/M2'                                     ! [QUANTA/M2]
+  'PHYT2 depth averaged light, scalar, series'
+  'TIME'      
+  'iddia_CDI'
+  'g3dvar'    
+  1.0d0    
+  
+'dia_TA_CH4'                                      ! Output
+  'diagnostics DAVEI2'
+  'QUANTA/M2'                                     ! [QUANTA/M2]
+  'PHYT2 depth averaged light, scalar, series'
+  'TIME'      
+  'iddia_ACH4'
+  'g3dvar'    
+  1.0d0   
+  
+'dia_PCO2'                                              ! Input/Output
+  'land mask, 1=water, 0=land, -1=river BC, -2=ocean BC'
+  'nondimensional'                                 ! [1]
+  'mask, scalar, series'
+  'TIME'
+  'iddia_POC2'
+  'g2dvar'
+  1.0d0  
+  
+'dia_DIC_SOD'                                              ! Input/Output
+  'land mask, 1=water, 0=land, -1=river BC, -2=ocean BC'
+  'nondimensional'                                 ! [1]
+  'mask, scalar, series'
+  'TIME'
+  'iddia_CSOD'
+  'g2dvar'
+  1.0d0 
+
+'dia_TA_SNH4'                                              ! Input/Output
+  'land mask, 1=water, 0=land, -1=river BC, -2=ocean BC'
+  'nondimensional'                                 ! [1]
+  'mask, scalar, series'
+  'TIME'
+  'iddia_ASNH4'
+  'g2dvar'
+  1.0d0 
+
+'dia_TA_SNO3'                                              ! Input/Output
+  'land mask, 1=water, 0=land, -1=river BC, -2=ocean BC'
+  'nondimensional'                                 ! [1]
+  'mask, scalar, series'
+  'TIME'
+  'iddia_ANO3'
+  'g2dvar'
+  1.0d0   
+ 
+'dia_DIC_CA'                                      ! Output
+  'diagnostics DAVEI2'
+  'QUANTA/M2'                                     ! [QUANTA/M2]
+  'PHYT2 depth averaged light, scalar, series'
+  'TIME'      
+  'iddia_CA'
+  'g3dvar'    
+  1.0d0 
+!
+!------------------------------------------------------------------------------
+!  Sediment flux model initial and restart
+!------------------------------------------------------------------------------
+!
+'CTEMP'                                           ! Input
+  'temperature'
+  'Deg C'                                         ! [CELSIUS]
+  'temperature, scalar, series'
+  'TIME'
+  'idCTEMP_ini'
+  'g2dvar'
+  1.0d0
+
+'CPOP'                                            ! Input
+  'particulate organic P'
+  'MG P/M^3'                                      ! [MG P/M^3]
+  'POP, scalar, series'
+  'TIME'
+  'idCPOP'
+  'g3dvar'
+  1.0d0
+
+'CPON'                                            ! Input
+  'particulate organic N'
+  'MG N/M^3'                                      ! [MG P/M^3]
+  'PON, scalar, series'
+  'TIME'
+  'idCPON'
+  'g3dvar'
+  1.0d0
+
+'CPOC'                                            ! Input
+  'particulate organic C'
+  'MG C/M^3'                                      ! [MG P/M^3]
+  'POC, scalar, series'
+  'TIME'
+  'idCPOC'
+  'g3dvar'
+  1.0d0
+
+'CPOS'                                            ! Input
+  'biogenic Si'
+  'MG Si/M^3'                                     ! [MG Si/M^3]
+  'Si, scalar, series'
+  'TIME'
+  'idCPOS'
+  'g2dvar'
+  1.0d0
+
+'PO4T2TM1S'                                       ! Input
+  'dissolved PO4'
+  'MG P/M^3'                                      ! [MG P/M^3]
+  'PO4, scalar, series'
+  'null'
+  'idPO4T2TM1S'
+  'g2dvar'
+  1.0d0
+
+'NH4T2TM1S'                                       ! Input
+  'dissolved NH4'
+  'MG N/M^3'                                      ! [MG N/M^3]
+  'NH4, scalar, series'
+  'TIME'
+  'idNH4T2TM1S'
+  'g2dvar'
+  1.0d0
+
+'NO3T2TM1S'                                       ! Input
+  'dissolved NO3'
+  'MG N/M^3'                                      ! [MG N/M^3]
+  'NO3, scalar, series'
+  'TIME'
+  'idNO3T2TM1S'
+  'g2dvar'
+  1.0d0
+
+'HST2TM1S'                                        ! Input
+  'dissolved H2S'
+  'MG O2/M^3'                                     ! [MG O2/M^3]
+  'H2S, scalar, series'
+  'TIME'
+  'idHST2TM1S'
+  'g2dvar'
+  1.0d0
+
+'SIT2TM1S'                                        ! Input
+  'dissolved SI'
+  'MG SI/M^3'                                     ! [MG SI/M^3]
+  'SI, scalar, series'
+  'TIME'
+  'idSIT2TM1S'
+  'g2dvar'
+  1.0d0
+
+'BNTHSTR1S'                                       ! Input
+  'benthic stress'
+  'null'                                          ! [null]
+  'benthic stress, scalar, series'
+  'TIME'
+  'idBNTHSTR1S'
+  'g2dvar'
+  1.0d0
+
+'PO4T1TM1S'                                       ! Input
+  'dissolved PO4'
+  'MG P/M^3'                                      ! [MG P/M^3]
+  'PO4, scalar, series'
+  'TIME'
+  'idPO4T1TM1S'
+  'g2dvar'
+  1.0d0
+
+'NH4T1TM1S'                                       ! Input
+  'dissolved NH4'
+  'MG N/M^3'                                      ! [MG N/M^3]
+  'NH4, scalar, series'
+  'TIME'
+  'idNH4T1TM1S'
+  'g2dvar'
+  1.0d0
+
+'NO3T1TM1S'                                       ! Input
+  'dissolved NO3'
+  'MG N/M^3'                                      ! [MG N/M^3]
+  'NO3, scalar, series'
+  'TIME'
+  'idNO3T1TM1S'
+  'g2dvar'
+  1.0d0
+
+'HST1TM1S'                                        ! Input
+  'dissolved H2S'
+  'MG O2/M^3'                                     ! [MG O2/M^3]
+  'H2S, scalar, series'
+  'TIME'
+  'idHST1TM1S'
+  'g2dvar'
+  1.0d0
+
+'SIT1TM1S'                                        ! Input
+  'dissolved SI'
+  'MG SI/M^3'                                     ! [MG SI/M^3]
+  'SI, scalar, series'
+  'TIME'
+  'idSIT1TM1S'
+  'g2dvar'
+  1.0d0
+
+'CH4T1TM1S'                                       ! Input
+  'dissolved CH4'
+  'MG O2/M^3'                                     ! [MG O2/M^3]
+  'CH4, scalar, series'
+  'TIME'
+  'idCH4T1TM1S'
+  'g2dvar'
+  1.0d0
+
+'CH4T2TM1S'                                       ! Input
+  'dissolved CH4'
+  'MG O2/M^3'                                     ! [MG O2/M^3]
+  'CH4, scalar, series'
+  'TIME'
+  'idCH4T2TM1S'
+  'g2dvar'
+  1.0d0
+
+'SO4T2TM1S'                                       ! Input
+  'sulfate'
+  'MG O2/M^3'                                     ! [MG O2/M^3]
+  'SO4, scalar, series'
+  'TIME'
+  'idSO4T2TM1S'
+  'g2dvar'
+  1.0d0
+
+'CH41TM1S'                                        ! Input
+  'methane'
+  'MG O2/M^3'                                     ! [MG O2/M^3]
+  'CH4, scalar, series'
+  'TIME'
+  'idCH41TM1S' 
+  'g2dvar'
+  1.0d0
+
+'PO41TM1S'                                        ! Input
+  'dissolved PO4'
+  'MG P/M^3'                                      ! [MG P/M^3]
+  'PO4, scalar, series'
+  'TIME'
+  'idPO41TM1S' 
+  'g2dvar'
+  1.0d0
+
+'NH41TM1S'                                        ! Input
+  'dissolved NH4'
+  'MG N/M^3'                                      ! [MG N/M^3]
+  'NH4, scalar, series'
+  'TIME'
+  'idNH41TM1S'
+  'g2dvar'
+  1.0d0
+
+'NO31TM1S'                                        ! Input
+  'dissolved NO3'
+  'MG N/M^3'                                      ! [MG N/M^3]
+  'NO3, scalar, series'
+  'TIME'
+  'idNO31TM1S'
+  'g2dvar'
+  1.0d0
+
+'HS1TM1S'                                         ! Input
+  'dissolved H2S'
+  'MG O2/M^3'                                     ! [MG O2/M^3]
+  'H2S, scalar, series'
+  'TIME'
+  'idHS1TM1S'
+  'g2dvar'
+  1.0d0
+
+'SI1TM1S'                                         ! Input
+  'dissolved SI'
+  'MG SI/M^3'                                     ! [MG SI/M^3]
+  'SI, scalar, series'
+  'TIME'
+  'idSI1TM1S'
+  'g2dvar'
+  1.0d0
+
+'O20TM1S'                                         ! Input
+  'dissolved O2'
+  'MG O2/M^3'                                     ! [MG O2/M^3]
+  'O2, scalar, series'
+  'TIME'
+  'idO20TM1S'
+  'g2dvar'
+  1.0d0
+
+'SODTM1S'                                         ! Input
+  'sediment oxygen demand'
+  'MG O2/M^?'                                     ! [MG O2/M^?]
+  'O2, scalar, series'
+  'TIME'
+  'idSODTM1S'
+  'g2dvar'
+  1.0d0
+
+'DD0TM1S'                                         ! Input
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idDD0TM1S'
+  'g2dvar'
+  1.0d0
+
+'BFORMAXS'                                        ! Input
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idBFORMAXS'
+  'g2dvar'
+  1.0d0
+
+'ISWBNTHS'                                        ! Input
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idISWBNTHS'
+  'g2dvar'
+  1.0d0
+
+!
+!------------------------------------------------------------------------------
+!  Sediment flux model parameters
+!------------------------------------------------------------------------------
+!
+'HSED'                                            ! Input
+  'sediment depth'
+  'cm'                                            ! [cm]
+  'depth, scalar, series'
+  'null'
+  'idHSED'
+  'n2dvar'
+  1.0d0
+
+'VSED'                                            ! Input
+  'sedimentation velocity'
+  'CM/YEAR'                                       ! [CM/YEAR]
+  'velocity, scalar, series'
+  'null'
+  'idVSED'
+  'n2dvar'
+  1.0d0
+
+'VPMIX'                                           ! Input
+  'particulate mixing velocity'
+  'M^2/DAY'                                       ! [M^2/DAY]
+  'velocity, scalar, series'
+  'null'
+  'idVPMIX'
+  'n2dvar'
+  1.0d0
+
+'VDMIX'                                           ! Input
+  'dissolved mixing velocity'
+  'M^2/DAY'                                       ! [M^2/DAY]
+  'velocity, scalar, series'
+  'null'
+  'idVDMIX'
+  'n2dvar'
+  1.0d0
+
+'M1'                                              ! Input
+  'sediment solids concentration - aerobic'
+  'KG/L'                                          ! [KG/L]
+  'solids concentration, scalar, series'
+  'null'
+  'idM1'
+  'n2dvar'
+  1.0d0
+
+'M2'                                              ! Input
+  'sediment solids concentration - anaerobic'
+  'KG/L'                                          ! [KG/L]
+  'solids concentration, scalar, series'
+  'null'
+  'idM2'
+  'n2dvar'
+  1.0d0
+
+'idpie1si'                                        ! Input
+  'aerobic layer Si partition coefficient'
+  'L/KG'                                          ! [L/KG]
+  'partition coefficient, scalar, series'
+  'null'
+  'idpie1si'
+  'n2dvar'
+  1.0d0
+
+'idpie2si'                                        ! Input
+  'anaerobic layer Si partition coefficient'
+  'L/KG'                                          ! [L/KG]
+  'partition coefficient, scalar, series'
+  'null'
+  'idpie2si'
+  'n2dvar'
+  1.0d0
+
+'idpie1po4m'                                      ! Input
+  'aerobic layer PO4 partition coefficient'
+  'L/KG'                                          ! [L/KG]
+  'partition coefficient, scalar, series'
+  'null'
+  'idpie1po4m'
+  'n2dvar'
+  1.0d0
+
+'idpie1po4n'                                      ! Input
+  'anaerobic layer PO4 partition coefficient'
+  'L/KG'                                          ! [L/KG]
+  'partition coefficient, scalar, series'
+  'null'
+  'idpie1po4n'
+  'n2dvar'
+  1.0d0
+!
+!------------------------------------------------------------------------------
+!  Sediment flux model output.
+!------------------------------------------------------------------------------
+!
+'time'                                            ! Output
+  'time since initialization'
+  'second'                                        ! [s]
+  'time, scalar, series'
+  'time'
+  'idsed_time'
+  't1dvar'
+  1.0d0
+
+'ctemp'                                           ! Output
+  'temperature'
+  'CELSIUS'                                       ! [CELSIUS]
+  'ctemp, scalar, series'
+  'time'
+  'idctemp'
+  'g2dvar'
+  1.0d0
+
+'pop1r'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idpop1r'
+  'g2dvar'
+  1.0d0
+
+'pop2r'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idpop2r'
+  'g2dvar'
+  1.0d0
+
+'pop3r'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idpop3r'
+  'g2dvar'
+  1.0d0
+
+'popr'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'  
+  'idpopr'
+  'g2dvar'
+  1.0d0
+
+'pon1r'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idpon1r'
+  'g2dvar'
+  1.0d0
+
+'pon2r'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idpon2r'
+  'g2dvar'
+  1.0d0
+
+'pon3r'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idpon3r'
+  'g2dvar'
+  1.0d0
+
+'ponr'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idponr'
+  'g2dvar'
+  1.0d0
+
+'poc1r'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idpoc1r'
+  'g2dvar'
+  1.0d0
+
+'poc2r'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idpoc2r'
+  'g2dvar'
+  1.0d0
+
+'poc3r'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idpoc3r'
+  'g2dvar'
+  1.0d0
+
+'pocr'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'  
+  'idpocr'
+  'g2dvar'
+  1.0d0
+
+'po4t2r'                                          ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idpo4t2r'
+  'g2dvar'
+  1.0d0
+
+'hst2r'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idhst2r'
+  'g2dvar'
+  1.0d0
+
+'sit2r'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'  
+  'idsit2r'
+  'g2dvar'
+  1.0d0
+
+'psiavr'                                          ! Output
+  'XXXXXX' 
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'  
+  'idpsiavr'
+  'g2dvar'
+  1.0d0
+
+'flxpop'                                          ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idflxpop'
+  'g2dvar'
+  1.0d0
+
+'flxpon'                                          ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idflxpon'
+  'g2dvar'
+  1.0d0
+
+'flxpoc'                                          ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idflxpoc'
+  'g2dvar'
+  1.0d0
+
+'o20'                                             ! Output
+  'XXXXXX' 
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'  
+  'ido20'
+  'g2dvar'
+  1.0d0
+
+'csod'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idcsod'
+  'g2dvar'
+  1.0d0
+
+'sod'                                             ! Output
+  'XXXXXX' 
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'  
+  'idsod'
+  'g2dvar'
+  1.0d0
+
+'s'                                               ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'ids'
+  'g2dvar'
+  1.0d0
+
+'jp'                                              ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idjp'
+  'g2dvar'
+  1.0d0
+
+'jn'                                              ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idjn'
+  'g2dvar'
+  1.0d0
+
+'jc'                                              ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idjc'
+  'g2dvar'
+  1.0d0
+
+'jo2nh4'                                          ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idjo2nh4'
+  'g2dvar'
+  1.0d0
+
+'xjco2av'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idxjco2av'
+  'g2dvar'
+  1.0d0
+
+'xjc1av'                                          ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idxjc1av'
+  'g2dvar'
+  1.0d0
+
+'jpo4'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idjpo4'
+  'g2dvar'
+  1.0d0
+
+'jnh4'                                              ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idjnh4'
+  'g2dvar'
+  1.0d0
+
+'jno3'                                              ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idjno3'
+  'g2dvar'
+  1.0d0
+
+'jhs'                                             ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idjhs'
+  'g2dvar'
+  1.0d0
+
+'jsi'                                             ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idjsi'
+  'g2dvar'
+  1.0d0
+
+'jch4aq'                                          ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idjch4aq'
+  'g2dvar'
+  1.0d0
+
+'jch4g'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idjch4g'
+  'g2dvar'
+  1.0d0
+
+'h1'                                              ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idh1'
+  'g2dvar'
+  1.0d0
+
+'po40'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idpo40'
+  'g2dvar'
+  1.0d0
+
+'po41'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idpo41'
+  'g2dvar'
+  1.0d0
+
+'po42'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idpo42'
+  'g2dvar'
+  1.0d0
+
+'po4t2'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idpo4t2'
+  'g2dvar'
+  1.0d0
+
+'nh40'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idnh40'
+  'g2dvar'
+  1.0d0
+
+'nh41'                                            ! Output
+  'XXXXXX' 
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'  
+  'idnh41'
+  'g2dvar'
+  1.0d0
+
+'nh42'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idnh42'
+  'g2dvar'
+  1.0d0
+
+'nh4t2'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idnh4t2'
+  'g2dvar'
+  1.0d0
+
+'no30'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idno30'
+  'g2dvar'
+  1.0d0
+
+'no31'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idno31'
+  'g2dvar'
+  1.0d0
+
+'no32'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idno32'
+  'g2dvar'
+  1.0d0
+
+'no3t2'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idno3t2'
+  'g2dvar'
+  1.0d0
+
+'hs1'                                             ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idhs1'
+  'g2dvar'
+  1.0d0
+
+'hs2'                                             ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idhs2'
+  'g2dvar'
+  1.0d0
+
+'hst2'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idhst2'
+  'g2dvar'
+  1.0d0
+
+'si0'                                             ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idsi0'
+  'g2dvar'
+  1.0d0
+
+'si1'                                             ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idsi1'
+  'g2dvar'
+  1.0d0
+
+'si2'                                             ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idsi2'
+  'g2dvar'
+  1.0d0
+
+'sit2'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idsit2'
+  'g2dvar'
+  1.0d0
+
+'bnthden'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idbnthden'
+  'g2dvar'
+  1.0d0
+
+'ch41'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idch41'
+  'g2dvar'
+  1.0d0
+
+'ch42'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idch42'
+  'g2dvar'
+  1.0d0
+
+'ch4t2'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idch4t2'
+  'g2dvar'
+  1.0d0
+
+'so41'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idso41'
+  'g2dvar'
+  1.0d0
+
+'so42'                                            ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idso42'
+  'g2dvar'
+  1.0d0
+
+'so4t2'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idso4t2'
+  'g2dvar'
+  1.0d0
+
+'flxpop1'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idflxpop1'
+  'g2dvar'
+  1.0d0
+
+'flxpop2'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idflxpop2'
+  'g2dvar'
+  1.0d0
+
+'flxpop3'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idflxpop3'
+  'g2dvar'
+  1.0d0
+
+'flxpon1'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idflxpon1'
+  'g2dvar'
+  1.0d0
+
+'flxpon2'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idflxpon2'
+  'g2dvar'
+  1.0d0
+
+'flxpon3'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idflxpon3'
+  'g2dvar'
+  1.0d0
+
+'flxpoc1'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idflxpoc1'
+  'g2dvar'
+  1.0d0
+
+'flxpoc2'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'  
+  'idflxpoc2'
+  'g2dvar'
+  1.0d0   
+
+'flxpoc3'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idflxpoc3'
+  'g2dvar'
+  1.0d0
+
+'flxpos'                                          ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idflxpos'
+  'g2dvar'
+  1.0d0
+
+'flxpo4t2s'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idflxpo4t2s'
+  'g2dvar'
+  1.0d0
+
+'flxsit2s'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! [XXXXXX]
+  'XXXXXX, scalar, series'
+  'time'
+  'idflxsit2s'
+  'g2dvar'
+  1.0d0
+!
+!------------------------------------------------------------------------------
+!  Sediment flux model output with global dump performed.
+!------------------------------------------------------------------------------
+!
+'TIME'                                            ! Output
+  'time since initialization'
+  'second'                                        ! [s]
+  'time, scalar, series'
+  'TIME'
+  'idsedG_TIME'
+  't1dvar'
+  1.0d0
+
+'CTEMP_GDA'                                       ! Output
+  'temperature'
+  'CELSIUS'                                       ! [CELSIUS]
+  'CTEMP, scalar, series'
+  'TIME'
+  'idCTEMP_GDA'
+  'g2dvar'
+  1.0d0
+
+'POP1R_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPOP1R_GDA'
+  'g2dvar'
+  1.0d0
+
+'POP2R_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPOP2R_GDA'
+  'g2dvar'
+  1.0d0
+
+'POP3R_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPOP3R_GDA'
+  'g2dvar'
+  1.0d0
+
+'POPR_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPOPR_GDA'
+  'g2dvar'
+  1.0d0
+
+'PON1R_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPON1R_GDA'
+  'g2dvar'
+  1.0d0
+
+'PON2R_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPON2R_GDA'
+  'g2dvar'
+  1.0d0
+
+'PON3R_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPON3R_GDA'
+  'g2dvar'
+  1.0d0
+
+'PONR_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPONR_GDA'
+  'g2dvar'
+  1.0d0
+
+'POC1R_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPOC1R_GDA'
+  'g2dvar'
+  1.0d0
+
+'POC2R_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPOC2R_GDA'
+  'g2dvar'
+  1.0d0
+
+'POC3R_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPOC3R_GDA'
+  'g2dvar'
+  1.0d0
+
+'POCR_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPOCR_GDA'
+  'g2dvar'
+  1.0d0
+
+'PO4T2R_GDA'                                      ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPO4T2R_GDA'
+  'g2dvar'
+  1.0d0
+
+'HST2R_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idHST2R_GDA'
+  'g2dvar'
+  1.0d0
+
+'SIT2R_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idSIT2R_GDA'
+  'g2dvar'
+  1.0d0
+
+'PSIAVR_GDA'                                      ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPSIAVR_GDA'
+  'g2dvar'
+  1.0d0
+
+'FLXPOP_GDA'                                      ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idFLXPOP_GDA'
+  'g2dvar'
+  1.0d0
+
+'FLXPON_GDA'                                      ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idFLXPON_GDA'
+  'g2dvar'
+  1.0d0
+
+'FLXPOC_GDA'                                      ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idFLXPOC_GDA'
+  'g2dvar'
+  1.0d0
+
+'O20_GDA'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idO20_GDA'
+  'g2dvar'
+  1.0d0
+
+'CSOD_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idCSOD_GDA'
+  'g2dvar'
+  1.0d0
+
+'SOD_GDA'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idSOD_GDA'
+  'g2dvar'
+  1.0d0
+
+'S_GDA'                                           ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idS_GDA'
+  'g2dvar'
+  1.0d0
+
+'JP_GDA'                                          ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idJP_GDA'
+  'g2dvar'
+  1.0d0
+
+'JN_GDA'                                          ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idJN_GDA'
+  'g2dvar'
+  1.0d0
+
+'JC_GDA'                                          ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idJC_GDA'
+  'g2dvar'
+  1.0d0
+
+'JO2NH4_GDA'                                      ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idJO2NH4_GDA'
+  'g2dvar'
+  1.0d0
+
+'XJCO2AV_GDA'                                     ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idXJCO2AV_GDA'
+  'g2dvar'
+  1.0d0
+
+'XJC1AV_GDA'                                      ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idXJC1AV_GDA'
+  'g2dvar'
+  1.0d0
+
+'JPO4_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idJPO4_GDA'
+  'g2dvar'
+  1.0d0
+
+'JNH4_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idJNH4_GDA'
+  'g2dvar'
+  1.0d0
+
+'JNO3_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idJNO3_GDA'
+  'g2dvar'
+  1.0d0
+
+'JH2S_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idJH2S_GDA'
+  'g2dvar'
+  1.0d0
+
+'JSI_GDA'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idJSI_GDA'
+  'g2dvar'
+  1.0d0
+
+'JCH4AQ_GDA'                                      ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idJCH4AQ_GDA'
+  'g2dvar'
+  1.0d0
+
+'JCH4G_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idJCH4G_GDA'
+  'g2dvar'
+  1.0d0
+
+'H1_GDA'                                          ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idH1_GDA'
+  'g2dvar'
+  1.0d0
+
+'PO40_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPO40_GDA'
+  'g2dvar'
+  1.0d0
+
+'PO41_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPO41_GDA'
+  'g2dvar'
+  1.0d0
+
+'PO42_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPO42_GDA'
+  'g2dvar'
+  1.0d0
+
+'PO4T2_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idPO4T2_GDA'
+  'g2dvar'
+  1.0d0
+
+'NH40_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idNH40_GDA'
+  'g2dvar'
+  1.0d0
+
+'NH41_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idNH41_GDA'
+  'g2dvar'
+  1.0d0
+
+'NH42_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idNH42_GDA'
+  'g2dvar'
+  1.0d0
+
+'NH4T2_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idNH4T2_GDA'
+  'g2dvar'
+  1.0d0
+
+'NO30_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idNO30_GDA'
+  'g2dvar'
+  1.0d0
+
+'NO31_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idNO31_GDA'
+  'g2dvar'
+  1.0d0
+
+'NO32_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idNO32_GDA'
+  'g2dvar'
+  1.0d0
+
+'NO3T2_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idNO3T2_GDA'
+  'g2dvar'
+  1.0d0
+
+'HS1_GDA'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idHS1_GDA'
+  'g2dvar'
+  1.0d0
+
+'HS2_GDA'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idHS2_GDA'
+  'g2dvar'
+  1.0d0
+
+'HST2_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idHST2_GDA'
+  'g2dvar'
+  1.0d0
+
+'SI0_GDA'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idSI0_GDA'
+  'g2dvar'
+  1.0d0
+
+'SI1_GDA'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idSI1_GDA'
+  'g2dvar'
+  1.0d0
+
+'SI2_GDA'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idSI2_GDA'
+  'g2dvar'
+  1.0d0
+
+'SIT2_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idSIT2_GDA'
+  'g2dvar'
+  1.0d0
+
+'JN2_GDA'                                         ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idJN2_GDA'
+  'g2dvar'
+  1.0d0
+
+'CH41_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idCH41_GDA'
+  'g2dvar'
+  1.0d0
+
+'CH42_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idCH42_GDA'
+  'g2dvar'
+  1.0d0
+
+'CH4T2_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idCH4T2_GDA'
+  'g2dvar'
+  1.0d0
+
+'SO41_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idSO41_GDA'
+  'g2dvar'
+  1.0d0
+
+'SO42_GDA'                                        ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idSO42_GDA'
+  'g2dvar'
+  1.0d0
+
+'SO4T2_GDA'                                       ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idSO4T2_GDA'
+  'g2dvar'
+  1.0d0
+
+'FLXPOP1_GDA'                                     ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idFLXPOP1_GDA'
+  'g2dvar'
+  1.0d0
+
+'FLXPOP2_GDA'                                     ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idFLXPOP2_GDA'
+  'g2dvar'
+  1.0d0
+
+'FLXPOP3_GDA'                                     ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idFLXPOP3_GDA'
+  'g2dvar'
+  1.0d0
+
+'FLXPON1_GDA'                                     ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idFLXPON1_GDA'
+  'g2dvar'
+  1.0d0
+
+'FLXPON2_GDA'                                     ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idFLXPON2_GDA'
+  'g2dvar'
+  1.0d0
+
+'FLXPON3_GDA'                                     ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idFLXPON3_GDA'
+  'g2dvar'
+  1.0d0
+
+'FLXPOC1_GDA'                                     ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idFLXPOC1_GDA'
+  'g2dvar'
+  1.0d0
+
+'FLXPOC2_GDA'                                     ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idFLXPOC2_GDA'
+  'g2dvar'
+  1.0d0
+
+'FLXPOC3_GDA'                                     ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idFLXPOC3_GDA'
+  'g2dvar'
+  1.0d0
+
+'FLXPOS_GDA'                                      ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idFLXPOS_GDA'
+  'g2dvar'
+  1.0d0
+
+'FLXPO4T2S_GDA'                                   ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idFLXPO4T2S_GDA'
+  'g2dvar'
+  1.0d0
+
+'FLXSIT2S_GDA'                                    ! Output
+  'XXXXXX'
+  'XXXXXX'                                        ! XXXXXX
+  'XXXXXX, scalar, series'
+  'TIME'
+  'idFLXSIT2S_GDA'
+  'g2dvar'
+  1.0d0

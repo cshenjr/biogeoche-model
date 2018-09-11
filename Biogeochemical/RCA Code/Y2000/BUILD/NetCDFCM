@@ -1,0 +1,751 @@
+!=======================================================================
+!                            NetCDF I/O options                        !
+!  This SUBROUTINE contains all the variables associated with input    !
+!  and output NetCDF files required by RCA, except for the horizontal  !
+!  and vertical grid files.  The IO model is very generic and easy to  !
+!  change or expand.                                                   ! 
+!                                                                      !
+!                              CHUNQI SHEN, UMCES/CBL, JAN-1-2017      !
+!=======================================================================
+!
+!------------------------------------------------------------------
+!  Parameters (defined by user)
+!------------------------------------------------------------------
+!
+      INTEGER,        PARAMETER :: NV = 800        ! Maximum number of variables in a NetCDF file (NV)
+      REAL,           PARAMETER :: KH = 1.0        ! Horizontal diffusivity (m2/sec)
+      INTEGER,        PARAMETER :: nriver = 8      ! number of rivers
+      INTEGER,        PARAMETER :: iniTflag = 1    ! file: initial=1; restart=1 or 2; history=record#;
+      INTEGER,        PARAMETER :: NETCDFOPT = 1   ! 1=use NetCDF I/O; 0=RCA default
+      CHARACTER(100), PARAMETER :: OUTFILPX = 'Y2016_eutr'
+      CHARACTER(100), PARAMETER :: DIAFILPX = 'Y2016_eutr_diag'
+      CHARACTER(100), PARAMETER :: SEDFILPX = 'Y2016_sedi'
+      CHARACTER(100), PARAMETER :: RCA_version = 'rca3.0'
+      CHARACTER(100), PARAMETER :: author = 'CHUNQI SHEN, UMCES/CBL'
+      CHARACTER(100), PARAMETER :: RCA_application = 'Chesapeake Bay'
+!
+!------------------------------------------------------------------
+!  Default settings (########## do NOT make change below #########)
+!------------------------------------------------------------------
+!
+!  sediment groups
+!
+      INTEGER,        PARAMETER :: group = 3       ! number of groups of CPOP,CPON,CPOC
+!
+!  RCA Grid information
+!
+      REAL           :: LAT(NX,NY), LON(NX,NY)
+      INTEGER        :: riverX(nriver), riverY(nriver)     ! X-/Y- position in rca
+!
+!  File names
+!
+      CHARACTER(100) :: VARNA         ! Variable info file (eg. ./varinfo.dat)
+      CHARACTER(100) :: GRDNA         ! ROMS NetCDF grid file
+      CHARACTER(100) :: RVRNA         ! ROMS NetCDF river forcing file
+      CHARACTER(100) :: HISNA         ! ROMS NetCDF history file
+      CHARACTER(100) :: RCANA         ! RCA master code
+      CHARACTER(100) :: SUBNA         ! RCA subroutine 
+      CHARACTER(100) :: SUBNA_h       ! RCA subroutine *.h
+      CHARACTER(100) :: RSTFILNA      ! RCA tuner restart file like RCAFIC
+      CHARACTER(100) :: PARAMFILNA    ! RCA tuner 2D/3D parameter file
+      CHARACTER(100) :: OUTFILNA      ! RCA tuner state variable output
+      CHARACTER(100) :: DIAFILNA      ! RCA tuner diagnostics variable output
+      CHARACTER(100) :: sedICFILNA    ! RCA sediment initial condition 
+      CHARACTER(100) :: sedRSTFILNA   ! RCA sediment restart file like RCAFICSED
+      CHARACTER(100) :: sedPARAMFILNA ! RCA sediment 2D/3D parameter file
+      CHARACTER(100) :: sedOUTFILNA   ! RCA sediment flux model output
+      INTEGER        :: nlen_HYDFILNA ! length of Hydro file name
+!
+!  File IDs
+!
+      INTEGER        :: ncID_his 
+      INTEGER        :: ncID_grd 
+      INTEGER        :: ncID_rvr 
+      INTEGER        :: ncID_rca 
+      INTEGER        :: ncID_bry 
+      INTEGER        :: ncID_rst
+      INTEGER        :: ncID_prm    ! in rca06.f, netcdf ID for 2D/3D-param file
+      INTEGER        :: ncID_ini 
+      INTEGER        :: ncID_dia 
+      INTEGER        :: ncID_sedini 
+      INTEGER        :: ncID_sedprm 
+      INTEGER        :: ncID_sedout 
+      INTEGER        :: ncID_sedrst
+!
+! time interval to write to NetCDF file
+!
+      INTEGER        :: IPRNTRSECS,NXPRTR ! time interval to write rst file
+!
+!  others about NetCDF
+!
+      INTEGER        :: status, varID, dimID
+      INTEGER        :: HYDTZERO, BCTZERO
+      INTEGER        :: ncIREC, ncIREC_sed
+      INTEGER        :: hydTflag, bryTflag
+      INTEGER        :: rstTflag, rstsedTflag
+      INTEGER        :: TVpmTflag(2,MXFUNC) 
+!      INTEGER        :: IBNRHYDOPT        ! binary option for I/O (2=Netcdf)
+      INTEGER        :: I2DNCOPT          ! netcdf option for 2D-params (1=Netcdf)
+      INTEGER        :: I3DNCOPT          ! netcdf option for 3D-params (1=Netcdf)
+      INTEGER        :: ITVNCOPT          ! netcdf option for time-dependent varibles (1=Netcdf)
+      LOGICAL        :: not_enough_length ! logical switch to next hydro file
+      REAL,PARAMETER :: spval = 1.0e+37   ! Fill Value
+
+!
+!  Input/output grid-type variables.
+!
+      INTEGER, PARAMETER :: n0dvar = 1    ! 0D time-indenpendent constant (e.g. ISEDPRNT)
+      INTEGER, PARAMETER :: n1dvar = 2    ! 1D time-indenpendent constant (e.g. DZ,DZZ)
+      INTEGER, PARAMETER :: n2dvar = 3    ! 2D time-independent variable (e.g. FSM)
+      INTEGER, PARAMETER :: t1dvar = 4    ! 1D time-denpendent variable (e.g. TIME)
+      INTEGER, PARAMETER :: t2dvar = 5    ! 2D time-denpendent variable (e.g. SAL_east)
+      INTEGER, PARAMETER :: g2dvar = 6    ! 2D time-dependent grid-variable (e.g. pon1tm1s)
+      INTEGER, PARAMETER :: g3dvar = 7    ! 3D time-dependent grid-variable (e.g. HYDTEMP)
+!
+!  NetCDF info varables
+!                                                                      !
+      CHARACTER(100) :: Vinfo(7,NV)
+      INTEGER        :: Iinfo(NV)
+      REAL           :: Fscale(NV)
+!
+!  Input/output identification indices.
+!
+      INTEGER        :: idTvar(NOSYS)      ! matrix of "id"s of all systems
+      INTEGER        :: id2Dpm(MXPARM2D)   ! matrix of "id"s of all 2D parameters
+      INTEGER        :: id3Dpm(MXPARM3D)   ! matrix of "id"s of all 3D parameters
+      INTEGER        :: idTVpm(MXFUNC)     ! matrix of "id"s of all time-dependent parameters
+      INTEGER        :: idTVpm_time(MXFUNC)! matrix of "id"s of time for time-dependent parameters
+!
+!  model dimension info
+!
+      INTEGER:: idNX      ! number of cells in x-dir
+      INTEGER:: idNY      ! number of cells in y-dir
+      INTEGER:: idNZ      ! number of cells in z-dir
+      INTEGER:: idNZZ     ! number of levels in z-dir
+      INTEGER:: idNG      ! number of groups of CPOP, CPON, CPOC
+      INTEGER:: idNSYS    ! number of systems
+!
+!  grid info
+!
+      INTEGER:: idLON     ! longitude at cell center
+      INTEGER:: idlAT     ! latitude at cell center
+      INTEGER:: idH       ! depth
+      INTEGER:: iddX      ! XI-grid width (m)
+      INTEGER:: iddY      ! ETA-grid length (m)
+      INTEGER:: iddZ      ! thickness of each sigma-level (0 to 1)
+      INTEGER:: iddZZ     ! average thickness between levels
+      INTEGER:: idFSM     ! land mask array
+!
+!  initial
+!
+      INTEGER:: idini_time   ! initial time, asign to TZERO
+!
+!  boundary
+!
+      INTEGER:: idIBCOPT     ! boundary type, sigma level or constant depth
+      INTEGER:: idIBCPWLOPT  ! temporal interpolation type
+      INTEGER:: idbry_time   ! boundary time
+      INTEGER:: idriver      ! riverine boundary 
+      INTEGER:: ideast       ! eastern boundary
+      INTEGER:: idwest       ! western boundary
+      INTEGER:: idnorth      ! northern boundary
+      INTEGER:: idsouth      ! southern boundary
+!
+!  10sTest model output
+!
+      INTEGER:: id10s_TIME     ! simulation time (TIME)
+      INTEGER:: id10s_ETA      ! sea level (ETA)
+      INTEGER:: id10s_CONC     ! salinity (CONC)
+
+      ! Global dump averaging is performed
+      INTEGER:: id10s_CONC_GDA ! salinity (10s_CONC_GDA)
+!
+!  pathogens model output
+!
+      INTEGER:: idpath_TIME  ! simulation time (TIME)
+      INTEGER:: idpath_ETA   ! sea level (ETA)
+      INTEGER:: idpath_SAL   ! salinity (SAL)
+      INTEGER:: idTRACR      ! tracer or total residual Chlori (TRACR)
+      INTEGER:: idTCOLI      ! total Coliform bacteri (TCOLI)
+      INTEGER:: idFCOLI      ! fecal Coliform bacteria (FCOLI)
+      INTEGER:: idENTERO     ! Enterococci (ENTERO)
+
+      ! Global dump averaging is performed
+      INTEGER:: idpath_SAL_GDA ! salinity (path_SAL_GDA)
+      INTEGER:: idTRACR_GDA    ! tracer or total residual Chlorine (TRACR_GDA)
+      INTEGER:: idTCOLI_GDA    ! total Coliform bacteria (TCOLI_GDA)
+      INTEGER:: idFCOLI_GDA    ! fecal Coliform bacteria (FCOLI_GDA)
+      INTEGER:: idENTERO_GDA   ! Enterococci (ENTERO_GDA)
+!
+!  eutrophication model input
+!
+!out! INTEGER:: ideutro_SAL  ! salinity (eutro_SAL)
+!out! INTEGER:: idPHYT1      ! winter diatoms (PHYT1)
+!out! INTEGER:: idPHYT2      ! summer assemblage (PHYT2)
+!out! INTEGER:: idPHYT3      ! fall assemblage (PHYT3)
+      INTEGER:: idRPOP       ! refractory POP (RPOP)
+      INTEGER:: idLPOP       ! labile POP (LPOP)
+      INTEGER:: idRDOP       ! refractory DOP (RDOP)
+      INTEGER:: idLDOP       ! labile DOP (LDOP)
+      INTEGER:: idPO4T       ! total dissoved inorganic P (PO4T)
+      INTEGER:: idRPON       ! refractory PON (RPON)
+      INTEGER:: idLPON       ! labile PON (LPON)
+      INTEGER:: idRDON       ! refractory DON (RDON)
+      INTEGER:: idLDON       ! labile DON (LDON)
+      INTEGER:: idNH4T       ! total ammonia (NH4T)
+!out! INTEGER:: idNO23       ! nitrite + nitrate (NO23)
+      INTEGER:: idBSI        ! bigenic - unavailable silica (BSI)
+      INTEGER:: idSIT        ! total inorganic silica (SIT)
+      INTEGER:: idRPOC       ! refractory POC (RPOC)
+      INTEGER:: idLPOC       ! labile POC (LPOC)
+      INTEGER:: idRDOC       ! refractory DOC (RDOC)
+      INTEGER:: idLDOC       ! labile DOC (LDOC)
+      INTEGER:: idEXDOC      ! algal exudate (EXDOC)
+      INTEGER:: idREPOC      ! reactive POC (REPOC)
+      INTEGER:: idREDOC      ! reactive DOC (REDOC)
+!out! INTEGER:: idO2EQ       ! oxygen equivalent SOD (O2EQ)
+      INTEGER:: idDO         ! dissolved oxygen (DO)
+!
+!  eutrophication model parameters
+!
+      INTEGER:: idKL         ! transfer coeff. of rearation  (KL)
+      INTEGER:: idVSNET1     ! setting eff. for ALGAL GROUP1 (VSNET1)
+      INTEGER:: idVSNET2     ! setting eff. for ALGAL GROUP2 (VSNET2)
+      INTEGER:: idVSNET3     ! setting eff. for ALGAL GROUP3 (VSNET3)
+      INTEGER:: idVSNET4     ! setting eff. for NON-LIVE POM (VSNET4)
+      INTEGER:: idKEBS       ! base extinction coefficient (KEBS)
+      INTEGER:: idSSLDS      ! conc. of suspended solids (SSLDS)
+      INTEGER:: idITOTSF     ! total daily solar radiation (ITOTSF)
+      INTEGER:: idF          ! fraction of daylight (F)
+      INTEGER:: idWIND       ! wind speed (WIND)
+      INTEGER:: idKETVF      ! extinction coefficient (KETVF)
+      INTEGER:: idTSS        ! total suspended solids (read into KEBASE)
+      INTEGER:: idITOTSF_time! time for ITOTSF
+      INTEGER:: idF_time     ! time for F
+      INTEGER:: idWIND_time  ! time for WIND
+      INTEGER:: idKETVF_time ! time for KETVF
+      INTEGER:: idTSS_time   ! time for TSS
+!
+!  eutrophication model output
+!
+      INTEGER:: ideutro_TIME ! simulation time (TIME)
+      INTEGER:: ideutro_ETA  ! sea level (ETA)
+      INTEGER:: ideutro_SAL  ! salinity (eutro_SAL)
+      INTEGER:: idPHYT1      ! winter diatoms (PHYT1)
+      INTEGER:: idPHYT2      ! summer assemblage (PHYT2)
+      INTEGER:: idPHYT3      ! fall assemblage (PHYT3)
+      INTEGER:: idTPOP       ! total particulate organic P (TPOP)
+      INTEGER:: idTDOP       ! total dissolved organic P (TPOP)
+      INTEGER:: idDPO4       ! total dissolved phosphate (DPO4)
+      INTEGER:: idTPON       ! total particulate organic N (TPON)
+      INTEGER:: idTDON       ! total dissolved organic N (TDON)
+      INTEGER:: idDNH4       ! total ammonia (DNH4)
+      INTEGER:: idNO23       ! nitrite + nitrate (NO23)
+      INTEGER:: idTPSI       ! total particulate silica (TPSI)
+      INTEGER:: idDSI        ! dissolved silica (DSI)
+      INTEGER:: idTPOC       ! total particulate carbon (TPOC)
+      INTEGER:: idTDOC       ! total dissolved carbon (TDOC)
+      INTEGER:: idO2EQ       ! oxygen equivalent SOD (O2EQ)
+      INTEGER:: idDOAVEG     ! averaged DO (DOAVEG)
+      INTEGER:: idDOMING     ! minimum DO (DOMING)
+      INTEGER:: idDOMAXG     ! maximum DO (DOMAXG)
+      INTEGER:: idHYDSAL     ! hydrodynamic model salinity (HYDSAL)
+      INTEGER:: idCHLAVEG    ! averaged chlorophyll (CHLAVEG)
+      INTEGER:: idCHLMING    ! minimum chlorophyll (CHLMING)
+      INTEGER:: idCHLMAXG    ! maximum chlorophyll (CHLMAXG)
+      INTEGER:: idTGPP       ! gross PP to 1% light level (TGPP)
+      INTEGER:: idTNPP       ! net PP to 1% light level (TNPP)
+      INTEGER:: idTRESP      ! total respiration (TRESP)
+      INTEGER:: idHYDTEMP    ! hydrodynamic model temperature (HYDTEMP)
+      INTEGER:: idSKE        ! light attenuation coeff. (???? SKE)
+
+      ! Global dump averaging is performed
+      INTEGER:: ideutro_SAL_GDA    ! salinity (SAL_GDA)
+      INTEGER:: idPHYT1_GDA  ! winter diatoms (PHYT1_GDA)
+      INTEGER:: idPHYT2_GDA  ! summer assemblage (PHYT2_GDA)
+      INTEGER:: idPHYT3_GDA  ! fall assemblage (PHYT3)
+      INTEGER:: idTPOP_GDA   ! total parti. organic P (TPOP_GDA)
+      INTEGER:: idTDOP_GDA   ! total disso. organic P (TDOP_GDA)
+      INTEGER:: idDPO4_GDA   ! total dissolved phosphate (DPO4_GDA)
+      INTEGER:: idTPON_GDA   ! total parti. organic N (TPON_GDA)
+      INTEGER:: idTDON_GDA   ! total disso. organic N (TDON_GDA)
+      INTEGER:: idDNH4_GDA   ! total ammonia (DNH4_GDA)
+      INTEGER:: idNO23_GDA   ! nitrite + nitrate (NO23_GDA)
+      INTEGER:: idTPSI_GDA   ! total parti. silica (TPSI_GDA)
+      INTEGER:: idDSI_GDA    ! disso. silica (DSI_GDA)
+      INTEGER:: idTPOC_GDA   ! total parti. carbon (TPOC_GDA)
+      INTEGER:: idTDOC_GDA   ! total disso. carbon (TDOC_GDA)
+      INTEGER:: idO2EQ_GDA   ! oxygen equivalent SOD (O2EQ_GDA)
+      INTEGER:: idDOAVEG_GDA ! averaged DO (DOAVEG_GDA)
+      INTEGER:: idDOMING_GDA ! minimum DO (DOMING_GDA)
+      INTEGER:: idDOMAXG_GDA ! maximum DO (DOMAXG_GDA)
+      INTEGER:: idHYDSAL_GDA ! hydrodynamic model salt (HYDSAL_GDA)
+      INTEGER:: idCHLAVEG_GDA! averaged chlorophyll (CHLAVEG_GDA)
+      INTEGER:: idCHLMING_GDA! minimum chlorophyll (CHLMING_GDA)
+      INTEGER:: idCHLMAXG_GDA! maximum chlorophyll (CHLMAXG_GDA)
+      INTEGER:: idTGPP_GDA   ! gross PP to 1% light level (TGPP_GDA)
+      INTEGER:: idTNPP_GDA   ! net PP to 1% light level (TNPP_GDA)
+      INTEGER:: idTRESP_GDA  ! total respiration (TRESP_GDA)
+      INTEGER:: idHYDTEMP_GDA! hydrodyn. model temp. (HYDTEMP_GDA)
+      INTEGER:: idSKE_GDA    ! light attenuation coeff. (SKE_GDA)
+!
+!  hydrodynamic forcing diagnostics
+!
+      INTEGER:: iddia_QX
+      INTEGER:: iddia_QY
+      INTEGER:: iddia_QZ
+      INTEGER:: iddia_RX
+      INTEGER:: iddia_RY
+      INTEGER:: iddia_RZ
+!
+!  eutrophication model diagnostics
+!
+      INTEGER:: iddia_ATTENL
+      INTEGER:: iddia_GPP1
+      INTEGER:: iddia_RESPR1
+      INTEGER:: iddia_K1C
+      INTEGER:: iddia_RNUTR1
+      INTEGER:: iddia_RLGHT1
+      INTEGER:: iddia_GITMAX1
+      INTEGER:: iddia_K1CNSAT
+      INTEGER:: iddia_RESP1
+      INTEGER:: iddia_GRAZ1
+      INTEGER:: iddia_ALG1SET
+      INTEGER:: iddia_XEMP11
+      INTEGER:: iddia_XEMP12
+      INTEGER:: iddia_XEMP13
+      INTEGER:: iddia_DAVEI1
+      INTEGER:: iddia_GPP2
+      INTEGER:: iddia_RESPR2
+      INTEGER:: iddia_K2C
+      INTEGER:: iddia_RNUTR2
+      INTEGER:: iddia_RLGHT2
+      INTEGER:: iddia_GITMAX2
+      INTEGER:: iddia_K2CNSAT
+      INTEGER:: iddia_RESP2
+      INTEGER:: iddia_GRAZ2
+      INTEGER:: iddia_ALG2SET
+      INTEGER:: iddia_XEMP21
+      INTEGER:: iddia_XEMP22
+      INTEGER:: iddia_XEMP23
+      INTEGER:: iddia_DAVEI2
+	  
+      INTEGER:: iddia_ANH4
+      INTEGER:: iddia_ANO23
+      INTEGER:: iddia_CGR
+      INTEGER:: iddia_CRE
+      INTEGER:: iddia_COX
+      INTEGER:: iddia_CDI
+      INTEGER:: iddia_ACH4
+      INTEGER:: iddia_POC2
+      INTEGER:: iddia_CSOD
+      INTEGER:: iddia_ASNH4 
+      INTEGER:: iddia_ANO3
+      INTEGER:: iddia_SUL	 
+      INTEGER:: iddia_CA	  
+      INTEGER:: iddia_AIRSEA	  
+!
+!  sediment flux model input -- restart and initial
+!
+      INTEGER:: idCTEMP_ini  ! sediment temperature (CTEMP)
+      INTEGER:: idCPOP       ! total sediment pop (CPOP)
+      INTEGER:: idCPON       ! total sediment pon (CPON)
+      INTEGER:: idCPOC       ! total sediment poc (CPOC)
+      INTEGER:: idCPOS       ! total sediment pos (CPOS)
+      INTEGER:: idPO4T2TM1S  ! PO4 in layer#2 (PO4T2TM1S)
+      INTEGER:: idNH4T2TM1S  ! NH4 in layer#2 (NH4T2TM1S)
+      INTEGER:: idNO3T2TM1S  ! NO3 in layer#2 (NO3T2TM1S)
+      INTEGER:: idHST2TM1S   ! HS  in layer#2 ( HST2TM1S)
+      INTEGER:: idSIT2TM1S   ! SI  in layer#2 ( SIT2TM1S)
+      INTEGER:: idBNTHSTR1S  ! benthic stress (BNTHSTR1S)
+      INTEGER:: idPO4T1TM1S  ! PO4 in layer#1 (PO4T1TM1S)
+      INTEGER:: idNH4T1TM1S  ! NH4 in layer#1 (NH4T1TM1S)
+      INTEGER:: idNO3T1TM1S  ! NO3 in layer#1 (NO3T1TM1S)
+      INTEGER:: idHST1TM1S   ! HS  in layer#1 ( HST1TM1S)
+      INTEGER:: idSIT1TM1S   ! SI  in layer#1 ( SIT1TM1S)
+      INTEGER:: idCH4T1TM1S  ! CH4 in layer#1 (CH4T1TM1S)
+      INTEGER:: idCH4T2TM1S  ! CH4 in layer#2 (CH4T2TM1S)
+      INTEGER:: idSO4T2TM1S  ! SO4 in layer#2 (SO4T2TM1S)
+      INTEGER:: idCH41TM1S
+      INTEGER:: idPO41TM1S
+      INTEGER:: idNH41TM1S
+      INTEGER:: idNO31TM1S
+      INTEGER:: idHS1TM1S
+      INTEGER:: idSI1TM1S
+      INTEGER:: idO20TM1S
+      INTEGER:: idSODTM1S
+      INTEGER:: idDD0TM1S
+      INTEGER:: idBFORMAXS
+      INTEGER:: idISWBNTHS
+!
+!  sediment flux model parameters 
+!
+      INTEGER:: idHSED       ! depth of sediment layer in cm (HSED) 
+      INTEGER:: idVSED       ! sedimentation rate (VSED)
+      INTEGER:: idVPMIX      ! sed solid phase mixing rate (VPMIX)
+      INTEGER:: idVDMIX      ! sed disso phase mixing rate (VDMIX)
+      INTEGER:: idM1         ! aerobic layer sed conc (M1)
+      INTEGER:: idM2         ! anaerobic layer sed conc (M2)
+      INTEGER:: idpie1si     ! aerobic layer si partition coeff (pie1si)
+      INTEGER:: idpie2si     ! anaerobic layer si partition coeff (pie2si)
+      INTEGER:: idpie1po4m   ! aerobic layer po4 partition coeff (pie1po4m)
+      INTEGER:: idpie1po4n   ! aerobic layer po4 partition coeff (pie1po4n)
+!
+!  sediment flux model output
+!
+      INTEGER:: idsed_time
+      INTEGER:: idctemp
+      INTEGER:: idpop1r
+      INTEGER:: idpop2r
+      INTEGER:: idpop3r
+      INTEGER:: idpopr
+      INTEGER:: idpon1r
+      INTEGER:: idpon2r
+      INTEGER:: idpon3r
+      INTEGER:: idponr
+      INTEGER:: idpoc1r
+      INTEGER:: idpoc2r
+      INTEGER:: idpoc3r
+      INTEGER:: idpocr
+      INTEGER:: idpo4t2r
+      INTEGER:: idhst2r
+      INTEGER:: idsit2r
+      INTEGER:: idpsiavr
+      INTEGER:: idflxpop
+      INTEGER:: idflxpon
+      INTEGER:: idflxpoc
+      INTEGER:: ido20
+      INTEGER:: idcsod
+      INTEGER:: idsod
+      INTEGER:: ids
+      INTEGER:: idjp
+      INTEGER:: idjn
+      INTEGER:: idjc
+      INTEGER:: idjo2nh4
+      INTEGER:: idxjco2av
+      INTEGER:: idxjc1av
+      INTEGER:: idjpo4
+      INTEGER:: idjnh4
+      INTEGER:: idjno3
+      INTEGER:: idjhs
+      INTEGER:: idjsi
+      INTEGER:: idjch4aq
+      INTEGER:: idjch4g
+      INTEGER:: idh1
+      INTEGER:: idpo40
+      INTEGER:: idpo41
+      INTEGER:: idpo42
+      INTEGER:: idpo4t2
+      INTEGER:: idnh40
+      INTEGER:: idnh41
+      INTEGER:: idnh42
+      INTEGER:: idnh4t2
+      INTEGER:: idno30
+      INTEGER:: idno31
+      INTEGER:: idno32
+      INTEGER:: idno3t2
+      INTEGER:: idhs1
+      INTEGER:: idhs2
+      INTEGER:: idhst2
+      INTEGER:: idsi0
+      INTEGER:: idsi1
+      INTEGER:: idsi2
+      INTEGER:: idsit2
+      INTEGER:: idbnthden
+      INTEGER:: idch41
+      INTEGER:: idch42
+      INTEGER:: idch4t2
+      INTEGER:: idso41
+      INTEGER:: idso42
+      INTEGER:: idso4t2
+      INTEGER:: idflxpop1
+      INTEGER:: idflxpop2
+      INTEGER:: idflxpop3
+      INTEGER:: idflxpon1
+      INTEGER:: idflxpon2
+      INTEGER:: idflxpon3
+      INTEGER:: idflxpoc1
+      INTEGER:: idflxpoc2
+      INTEGER:: idflxpoc3
+      INTEGER:: idflxpos
+      INTEGER:: idflxpo4t2s
+      INTEGER:: idflxsit2s
+
+      ! Global dump averaging is performed
+      INTEGER:: idsedG_TIME  ! simulation time (sed_TIME)
+      INTEGER:: idCTEMP_GDA  !
+      INTEGER:: idPOP1R_GDA  ! reactive POP in class G1 (POP1R_GDA)
+      INTEGER:: idPOP2R_GDA  ! reactive POP in class G2 (POP2R_GDA)
+      INTEGER:: idPOP3R_GDA  ! reactive POP in class G3 (POP3R_GDA)
+      INTEGER:: idPOPR_GDA   ! total reactive POP (POPR_GDA)
+      INTEGER:: idPON1R_GDA  ! reactive PON in class G1 (PON1R_GDA)
+      INTEGER:: idPON2R_GDA  ! reactive PON in class G2 (PON2R_GDA)
+      INTEGER:: idPON3R_GDA  ! reactive PON in class G3 (PON3R_GDA)
+      INTEGER:: idPONR_GDA   ! total reactive PON (PONR_GDA)
+      INTEGER:: idPOC1R_GDA  ! reactive POC in class G1 (POC1R_GDA)
+      INTEGER:: idPOC2R_GDA  ! reactive POC in class G2 (POC2R_GDA)
+      INTEGER:: idPOC3R_GDA  ! reactive POC in class G3 (POC3R_GDA)
+      INTEGER:: idPOCR_GDA   ! total reactive POC (POCR_GDA)
+      INTEGER:: idPO4T2R_GDA !
+      INTEGER:: idHST2R_GDA
+      INTEGER:: idSIT2R_GDA
+      INTEGER:: idPSIAVR_GDA
+      INTEGER:: idFLXPOP_GDA
+      INTEGER:: idFLXPON_GDA
+      INTEGER:: idFLXPOC_GDA
+      INTEGER:: idO20_GDA
+      INTEGER:: idCSOD_GDA
+      INTEGER:: idSOD_GDA
+      INTEGER:: idS_GDA
+      INTEGER:: idJP_GDA
+      INTEGER:: idJN_GDA
+      INTEGER:: idJC_GDA
+      INTEGER:: idJO2NH4_GDA
+      INTEGER:: idXJCO2AV_GDA
+      INTEGER:: idXJC1AV_GDA
+      INTEGER:: idJPO4_GDA
+      INTEGER:: idJNH4_GDA
+      INTEGER:: idJNO3_GDA
+      INTEGER:: idJH2S_GDA
+      INTEGER:: idJSI_GDA
+      INTEGER:: idJCH4AQ_GDA
+      INTEGER:: idJCH4G_GDA
+      INTEGER:: idH1_GDA
+      INTEGER:: idPO40_GDA
+      INTEGER:: idPO41_GDA
+      INTEGER:: idPO42_GDA
+      INTEGER:: idPO4T2_GDA
+      INTEGER:: idNH40_GDA
+      INTEGER:: idNH41_GDA
+      INTEGER:: idNH42_GDA
+      INTEGER:: idNH4T2_GDA
+      INTEGER:: idNO30_GDA
+      INTEGER:: idNO31_GDA
+      INTEGER:: idNO32_GDA
+      INTEGER:: idNO3T2_GDA
+      INTEGER:: idHS1_GDA
+      INTEGER:: idHS2_GDA
+      INTEGER:: idHST2_GDA
+      INTEGER:: idSI0_GDA
+      INTEGER:: idSI1_GDA
+      INTEGER:: idSI2_GDA
+      INTEGER:: idSIT2_GDA
+      INTEGER:: idJN2_GDA
+      INTEGER:: idCH41_GDA
+      INTEGER:: idCH42_GDA
+      INTEGER:: idCH4T2_GDA
+      INTEGER:: idSO41_GDA
+      INTEGER:: idSO42_GDA
+      INTEGER:: idSO4T2_GDA
+      INTEGER:: idFLXPOP1_GDA
+      INTEGER:: idFLXPOP2_GDA
+      INTEGER:: idFLXPOP3_GDA
+      INTEGER:: idFLXPON1_GDA
+      INTEGER:: idFLXPON2_GDA
+      INTEGER:: idFLXPON3_GDA
+      INTEGER:: idFLXPOC1_GDA
+      INTEGER:: idFLXPOC2_GDA
+      INTEGER:: idFLXPOC3_GDA
+      INTEGER:: idFLXPOS_GDA
+      INTEGER:: idFLXPO4T2S_GDA
+      INTEGER:: idFLXSIT2S_GDA
+
+! 
+!  Common parameter or variable shared by main program and subroutine
+!
+      COMMON   /NetCDF_files/
+     . VARNA     ,GRDNA     ,HISNA     ,RVRNA     ,RCANA     ,
+     . OUTFILNA  ,sedOUTFILNA          ,sedICFILNA,
+     . RSTFILNA  ,sedRSTFILNA          ,DIAFILNA  ,
+     . PARAMFILNA,sedPARAMFILNA        ,
+     . I2DNCOPT  ,I3DNCOPT  ,ITVNCOPT  ,
+     . Vinfo     ,Iinfo     ,Fscale    ,
+     . idTvar    ,id2Dpm    ,id3Dpm    ,
+     . idTVpm    ,idTVpm_time,
+     . ncID_ini    ,ncID_his    ,ncID_grd    ,ncID_rvr     ,
+     . ncID_rca    ,ncID_bry    ,ncID_prm    ,ncID_sedout  ,
+     . ncID_sedini ,ncID_sedprm  
+
+      COMMON   /NetCDF_grid/
+     . LAT       ,LON       ,riverX    ,riverY
+
+      COMMON   /NetCDF_time/
+     . ncIREC    ,ncIREC_sed ,
+     . hydTflag  ,bryTflag   ,
+     . rstTflag  ,rstsedTflag,
+     . IPRNTRSECS,NXPRTR
+
+      COMMON   /ncids_ini/
+     . idini_time
+
+      COMMON   /ncids_bry/
+     . idIBCOPT    ,idIBCPWLOPT ,idbry_time  ,idriver        ,
+     . ideast      ,idwest      ,idnorth     ,idsouth
+
+      COMMON   /ncids_grid/
+     . idNX      ,idNY      ,idNZ      ,idNZZ     ,idNG      ,
+     . idNSYS    ,idlon     ,idlat     ,idH       ,idDX      ,
+     . idDY      ,idDZ      ,idDZZ     ,idFSM
+
+      COMMON   /ncids_10sTest/
+     . id10s_TIME     ,id10s_ETA        ,
+     . id10s_CONC
+
+      COMMON   /ncids_10sTest_GDA/
+     . id10s_CONC_GDA
+
+      COMMON   /ncids_path/
+     . idpath_TIME     ,idpath_ETA      ,
+     . idpath_SAL      ,idTRACR         ,idTCOLI         ,
+     . idFCOLI         ,idENTERO
+
+      COMMON   /ncids_path_GDA/
+     . idpath_SAL_GDA  ,idTRACR_GDA     ,idTCOLI_GDA     ,
+     . idFCOLI_DGA     ,idENTERO_GDA
+
+      COMMON   /ncids_eutro_input/
+!out!. ideutro_SAL     ,idPHYT1         ,idPHYT2         ,
+!out!. idPHYT3         ,idNO23          ,idO2EQ          ,
+     . idRPOP          ,idLPOP          ,idRDOP          ,
+     . idLDOP          ,idPO4T          ,idRPON          ,
+     . idLPON          ,idRDON          ,idLDON          ,
+     . idNH4T          ,idBSI           ,idSIT           ,
+     . idRPOC          ,idLPOC          ,idRDOC          ,
+     . idLDOC          ,idEXDOC         ,idREPOC         ,
+     . idREDOC         ,idDO
+
+      COMMON   /ncids_eutro_parameters/
+     . idKL            ,idVSNET1        ,idVSNET2        ,
+     . idVSNET3        ,idVSNET4        ,idKEBS          ,
+     . idSSLDS         ,TVpmTflag       ,
+     . idITOTSF        ,idITOTSF_time   ,
+     . idF             ,idF_time        ,
+     . idWIND          ,idWIND_time     ,
+     . idKETVF         ,idKETVF_time    ,
+     . idTSS           ,idTSS_time
+
+      COMMON   /ncids_eutro_output/
+     . ideutro_TIME    ,ideutro_ETA     ,
+     . ideutro_SAL     ,idPHYT1         ,idPHYT2         ,
+     . idPHYT3         ,idTPOP          ,idTDOP          ,
+     . idDPO4          ,idTPON          ,idTDON          ,
+     . idDNH4          ,idNO23          ,idTPSI          ,
+     . idDSI           ,idTPOC          ,idTDOC          ,
+     . idO2EQ          ,idDOAVEG        ,idDOMING        ,
+     . idDOMAXG        ,idHYDSAL        ,idCHLAVEG       ,
+     . idCHLMING       ,idCHLMAXG       ,idTGPP          ,
+     . idTNPP          ,idTRESP         ,idHYDTEMP       ,
+     . idSKE
+
+      COMMON   /ncids_hydro_forcing_diagnostics/
+     . iddia_QX        ,iddia_QY        ,iddia_QZ        ,
+     . iddia_RX        ,iddia_RY        ,iddia_RZ         
+
+      COMMON   /ncids_eutro_diagnostics/
+     . iddia_ATTENL    ,
+     . iddia_GPP1      ,iddia_RESPR1    ,iddia_K1C       ,
+     . iddia_RNUTR1    ,iddia_RLGHT1    ,iddia_GITMAX1   ,
+     . iddia_K1CNSAT   ,iddia_CA        ,iddia_SUL       ,
+     . iddia_RESP1     ,iddia_GRAZ1     ,iddia_ALG1SET   ,
+     . iddia_XEMP11    ,iddia_XEMP12    ,iddia_XEMP13    ,
+     . iddia_DAVEI1    ,
+     . iddia_GPP2      ,iddia_RESPR2    ,iddia_K2C       ,
+     . iddia_RNUTR2    ,iddia_RLGHT2    ,iddia_GITMAX2   ,
+     . iddia_K2CNSAT   ,
+     . iddia_RESP2     ,iddia_GRAZ2     ,iddia_ALG2SET   ,
+     . iddia_XEMP21    ,iddia_XEMP22    ,iddia_XEMP23    ,
+     . iddia_DAVEI2    ,iddia_ANH4      ,iddia_ANO23     ,
+     . iddia_CGR       ,iddia_CRE       ,iddia_COX       ,
+     . iddia_CDI       ,iddia_ACH4      ,iddia_POC2      ,
+     . iddia_CSOD      ,iddia_ASNH4     ,iddia_ANO3      ,
+     . iddia_AIRSEA	 
+	 
+	 
+      COMMON   /ncids_eutro_GDA/
+     . ideutro_SAL_GDA ,idPHYT1_GDA     ,idPHYT2_GDA     ,
+     . idPHYT3_GDA     ,idTPOP_GDA      ,idTDOP_GDA      ,
+     . idDPO4_GDA      ,idTPON_GDA      ,idTDON_GDA      ,
+     . idDNH4_GDA      ,idNO23_GDA      ,idTPSI_GDA      ,
+     . idDSI_GDA       ,idTPOC_GDA      ,idTDOC_GDA      ,
+     . idO2EQ_GDA      ,idDOAVEG_GDA    ,idDOMING_GDA    ,
+     . idDOMAXG_GDA    ,idHYDSAL_GDA    ,idCHLAVEG_GDA   ,
+     . idCHLMING_GDA   ,idCHLMAXG_GDA   ,idTGPP_GDA      , 
+     . idTNPP_GDA      ,idTRESP_GDA     ,idHYDTMP_GDA    ,
+     . idSKE_GDA
+
+      COMMON   /ncids_vssedmod_input/
+     . idCTEMP_ini     ,idCPOP          ,idCPON          ,
+     . idCPOC          ,idCPOS          ,idPO4T2TM1S     ,
+     . idNH4T2TM1S     ,idNO3T2TM1S     ,idHST2TM1S      ,
+     . idSIT2TM1S      ,idBNTHSTR1S     ,idPO4T1TM1S     ,
+     . idNH4T1TM1S     ,idNO3T1TM1S     ,idHST1TM1S      ,
+     . idSIT1TM1S      ,idCH4T1TM1S     ,idCH4T2TM1S     ,
+     . idSO4T2TM1S     ,idCH41TM1S      ,idPO41TM1S      ,
+     . idNH41TM1S      ,idNO31TM1S      ,idHS1TM1S       ,
+     . idSI1TM1S       ,idO20TM1S       ,idSODTM1S       ,
+     . idDD0TM1S       ,idBFORMAXS      ,idISWBNTHS
+
+      COMMON   /ncids_vssedmod_params/
+     . idHSED          ,
+     . idVSED          ,idVPMIX         ,idVDMIX         ,
+     . idM1            ,idM2            ,idpie1si        ,
+     . idpie2si        ,idpie1po4m      ,idpie1po4n
+
+      COMMON   /ncids_vssedmod_output/
+     . idsed_time      ,
+     . idctemp         ,idpop1r         ,idpop2r         ,
+     . idpop3r         ,idpopr          ,idpon1r         ,
+     . idpon2r         ,idpon3r         ,idponr          ,
+     . idpoc1r         ,idpoc2r         ,idpoc3r         ,
+     . idpocr          ,idpo4t2r        ,idhst2r         ,
+     . idsit2r         ,idpsiavr        ,idflxpop        ,
+     . idflxpon        ,idflxpoc        ,ido20           ,
+     . idcsod          ,idsod           ,ids             ,
+     . idjp            ,idjn            ,idjc            ,
+     . idjo2nh4        ,idxjco2av       ,idxjc1av        ,
+     . idjpo4          ,idjnh4          ,idjno3          ,
+     . idjhs           ,idjsi           ,idjch4aq        ,
+     . idjch4g         ,idh1            ,idpo40          ,
+     . idpo41          ,idpo42          ,idpo4t2         ,
+     . idnh40          ,idnh41          ,idnh42          ,
+     . idnh4t2         ,idno30          ,idno31          ,
+     . idno32          ,idno3t2         ,idhs1           ,
+     . idhs2           ,idhst2          ,idsi0           ,
+     . idsi1           ,idsi2           ,idsit2          ,
+     . idbnthden       ,idch41          ,idch42          ,
+     . idch4t2         ,idso41          ,idso42          ,
+     . idso4t2         ,idflxpop1       ,idflxpop2       ,
+     . idflxpop3       ,idflxpon1       ,idflxpon2       ,
+     . idflxpon3       ,idflxpoc1       ,idflxpoc2       ,
+     . idflxpoc3       ,idflxpos        ,idflxpo4t2s     ,
+     . idflxsits
+
+      COMMON   /ncids_vssedmod_GDA/
+     . idsedG_TIME     ,
+     . idCTEMP_GDA     ,idPOP1R_GDA     ,idPOP2R_GDA     ,
+     . idPOP3R_GDA     ,idPOPR_GDA      ,idPON1R_GDA     ,
+     . idPON2R_GDA     ,idPON3R_GDA     ,idPONR_GDA      ,
+     . idPOC1R_GDA     ,idPOC2R_GDA     ,idPOC3R_GDA     ,
+     . idPOCR_GDA      ,idPO4T2R_GDA    ,idHST2R_GDA     ,
+     . idSIT2R_GDA     ,idPSIAVR_GDA    ,idFLXPOP_GDA    ,
+     . idFLXPON_GDA    ,idFLXPOC_GDA    ,idO20_GDA       ,
+     . idCSOD_GDA      ,idSOD_GDA       ,idS_GDA         ,
+     . idJP_GDA        ,idJN_GDA        ,idJC_GDA        ,
+     . idJO2NH4_GDA    ,idXJCO2AV_GDA   ,idXJC1AV_GDA    ,
+     . idJPO4_GDA      ,idJNH4_GDA      ,idJNO3_GDA      ,
+     . idJH2S_GDA      ,idJSI_GDA       ,idJCH4AQ_GDA    ,
+     . idJCH4G_GDA     ,idH1_GDA        ,idPO40_GDA      ,
+     . idPO41_GDA      ,idPO42_GDA      ,idPO4T2_GDA     ,
+     . idNH40_GDA      ,idNH41_GDA      ,idNH42_GDA      ,
+     . idNH4T2_GDA     ,idNO30_GDA      ,idNO31_GDA      ,
+     . idNO32_GDA      ,idNO3T2_GDA     ,idHS1_GDA       ,
+     . idHS2_GDA       ,idHST2_GDA      ,idSI0_GDA       ,
+     . idSI1_GDA       ,idSI2_GDA       ,idSIT2_GDA      ,
+     . idJN2_GDA       ,idCH41_GDA      ,idCH42_GDA      ,
+     . idCH4T2_GDA     ,idSO41_GDA      ,idSO42_GDA      ,
+     . idSO4T2_GDA     ,idFLXPOP1_GDA   ,idFLXPOP2_GDA   ,
+     . idFLXPOP3_GDA   ,idFLXPON1_GDA   ,idFLXPON2_GDA   ,
+     . idFLXPON3_GDA   ,idFLXPOC1_GDA   ,idFLXPOC2_GDA   ,
+     . idFLXPOC3_GDA   ,idFLXPOS_GDA    ,idFLXPO4T2S_GDA ,
+     . idFLXSIT2S_GDA
+

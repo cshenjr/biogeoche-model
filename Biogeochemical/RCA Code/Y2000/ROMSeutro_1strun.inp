@@ -1,0 +1,110 @@
+C N2DPARAM  I2DNCOPT    <- 1=use netcdf as input
+         6         1
+C PARAMFILNA(A80, when I2DNCOPT=1)
+./TRANS/Y2016_eutr_prm.nc
+C   Scale1    Scale2    Scale3    Scale4    Scale5    Scale6
+    0.3048       1.0       1.0       1.0       1.0       1.0
+KL
+Vsnet1
+Vsnet2
+Vsnet3
+Vsnet4
+KEBS
+C N3DPARAM  I3DNCOPT    <- 1=use netcdf as input
+         1         1
+C PARAMFILNA(A80, when I3DNCOPT=1)
+./TRANS/Y2016_eutr_prm.nc
+C   SCALE1
+       1.0
+SSLDS
+C    NCONS
+       184 number of constants
+     AGOPT    ACTALG     KAOPT     KEOPT    Unused    Unused    Unused    Unused
+        0.        3.        3.        4.                            
+     TOPT1   K1BETA1   K1BETA2       K1C       K1T       IS1      KMN1      KMP1
+        8.     0.004     0.004     2.500      1.07      200.     0.010     0.001
+      KMS1      K1RB      K1RT      K1RG     K1GZC     K1GZT     CCHL1     CPR11
+     0.020     0.025     1.047      0.22     0.110      1.03      75.0      40.0
+     CPR12     CPR13     CNR11     CNR12     CNR13     CSR11     CSR12     SCR13
+      90.0     150.0     5.670       6.7      12.0       3.0      10.0      20.0   
+      XKC1    VSBAS1    VSNTR1    Unused    Unused    Unused    Unused    Unused
+      0.02      0.4       0.2                                                       
+     TOPT2   K2BETA1   K2BETA2       K2C       K2T       IS2      KMN2      KMP2
+       25.     0.005     0.015     3.400      1.07      350.     0.008     0.001
+      KMS2      K2RB      K2RT      K2RG     K2GZC     K2GZT     CCHL2     CPR21
+     0.005     0.030     1.047      0.25     0.100     1.100     100.0      40.0
+     CPR22     CPR23     CNR21     CNR22     CNR23     CSR21     CSR22     CSR23
+      90.0     100.0      5.67       9.0      12.0       8.0      17.0       7.0     
+      XKC2    VSBAS2    VSNTR2    Unused    Unused    Unused    Unused    Unused
+     0.017       0.2       0.2                                                                     
+     TOPT3   K3BETA1   K3BETA2       K3C       K3T       IS3      KMN3      KMP3
+        6.     0.005     0.005       3.4      1.10      350.       0.1     0.001
+      KMS3      K3RB      K3RT      K3RG     K3GZC     K3GZT     CCHL3     CPR31
+       0.1     0.027     1.000      0.22     0.010      1.00      75.0      40.0
+     CPR32     CPR33     CNR31     CNR32     CNR33     CSR31     CSR32     CSR33
+       90.     100.0      5.67       9.0      12.0       8.0      17.0       7.0    
+      XKC3    VSBAS3    VSNTR3    Unused    Unused    Unused    Unused    Unused
+     0.017      10.0       0.2                                                               
+     KMPHY     FRPOP     FLPOP     FRDOP     FLDOP      FPO4     FRPON     FLPON
+     0.025     0.050     0.150     0.100     0.600     0.100     0.050     0.150
+     FRDON     FLDON      FNH3     FRPOC     FLPOC     FRDOC     FLDOC      K57C
+     0.100     0.600     0.100     0.050     0.350     0.100     0.500     0.025
+      K57T      K68C      K68T      K79C      K79T      K89C      K89T    K1012C
+     1.030      0.10     1.020     0.070     1.030     0.650     1.030     0.025
+    K1012T    K1113C    K1113T    K1214C    K1214T    K1314C    K1314T    K1415C
+     1.030      0.10     1.020     0.015     1.030     0.400     1.030     0.001
+    K1415T      KNIT     K150C     K150T      KNO3    K1617C    K1617T    K1820C
+     1.080     1.000     0.050     1.045     0.010      0.20     1.080     0.025
+    K1820T    K1921C    K1921T     K200C     K200T     K210C     K210T    KMLDOC
+     1.030       0.1     1.080     0.050     1.030     0.200     1.020     0.100
+      KDOC     K220C     K220T    FLOCEX    K2324C    K2324T     K24OC     K24OT
+     0.200     0.950     1.020       0.1     0.500     1.080     0.500     1.080
+   CTOPCSO   CTONCSO     K250C     K250T     KO2EQ     KLMIN     DIFUS       KAT
+       40.      5.67       0.5      1.08     0.100       1.0      0.00     1.024
+    VSBAST     VSPOM     VSPMT    VSSEDT     BVCSO     CRCSO   VMINCSO   VMAXCSO
+      1.02      0.3      1.00      1.15        2.       10.       0.5       20.
+    KADPO4     KADSI     VSPIM   KECONST
+      0.02      0.02       0.5       0.0
+C    NOTVF  TVPWLOPT  TVINCOPT    <- 1=use netcdf as input
+         4         1         1       number of time functions
+C PARAMFILNA(A80, when TVINCOPT=1)
+./TRANS/Y2016_eutr_prm.nc
+C    PNAME  TWARPTVF
+      ITOT      DAYS       TOTAL DAILY RADIATION
+C    PNAME  TWARPTVF
+         F      DAYS       FRACTION OF DAYLIGHT
+C    PNAME  TWARPTVF
+      WIND      DAYS       Wind Speed (m/sec)
+C    PNAME  TWARPTVF
+        KE      DAYS       Extinction coefficient (/m)
+C NOKINFIL Number of kinetic subroutine specific files
+2
+ROMSsed.inp
+./TRANS/Y2016_eutr_prm.nc
+
+
+
+C    PNAME     NOBRK  TWARPTVF
+      ITOT        13      DAYS      TOTAL DAILY RADIATION
+      118.        0.      168.       11.      218.       59.      318.       90.
+      418.      120.      468.      151.      518.      181.      468.      212.
+      418.      243.      318.      273.      218.      304.      168.      335.
+      118.      365.
+C    PNAME     NOBRK  TWARPTVF
+     F DAY        13      DAYS       FRACTION OF DAYLIGHT
+      0.37        0.      0.42       31.      0.46       59.      0.52       90.
+      0.58      120.      0.61      151.      0.63      181.      0.59      212.
+      0.54      243.      0.49      273.      0.43      304.      0.40      335.
+      0.37      365.
+C    PNAME     NOBRK  TWARPTVF
+      Wind         2      DAYS       Wind Speed (m/sec)
+      000.        0.      000.     9999.
+C    PNAME     NOBRK  TWARPTVF
+        KE        13      DAYS       Extinction coefficient (/m)
+      0.70        0.      0.65       31.      0.60       59.      0.55       90.
+      0.73      120.      0.96      151.      1.12      181.      0.74      212.
+      0.57      243.      0.57      273.      0.51      304.      0.63      335.
+      0.67      365.
+C NOKINFIL Number of kinetic subroutine specific files
+1
+sed.inp

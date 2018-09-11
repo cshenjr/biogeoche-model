@@ -1,0 +1,109 @@
+######################################################################
+#
+#  GDPME Makefile for Linux (Portland compiler)
+#
+#  Use "make release" for optimized code
+#      "make debug"   for debug code
+#      "make clean"   for removing object files and executables
+#
+#######################################################################
+
+.SUFFIXES: .obj .o .f .h
+
+#mscompaqFC = f90 /nologo /optimize:2 /convert:big_endian /traceback 
+#msportlandFC = pgf90  -byteswapio -O2 
+#msintelFC = ifort /cm /O2 /w95 /convert:big_endian /nologo     
+#lnportlandFC = pgf90 -byteswapio -O2 
+#lnintelFC = ifort -cm -nologo -w95 -O2  
+#genericFC = f90 -O2 
+
+#### Flags with a "D" at the end are for the debug target  #####
+
+#####  COMPILING FLAGS  #####
+FFLAGS  = -c 
+#mscompaqFFLAGSD = -c -debug:full -check:bounds -optimize:0 -traceback /convert:big_endian
+
+#####  LINKING FLAGS  #####
+#mscompaqLFLAGS= /EXE:rca_tens.exe
+#msportlandLFLAGS = -o rca_tens.exe
+#msintelLFLAGS = -o rca_tens.exe   
+#lnportlandLFLAGS = -o rca_tens
+#lnintelLFLAGS = -o rca_tens
+#genericLFLAGS = -o rca_tens
+
+#mscompaqOBJECTS =  rca.obj rca01.obj rca02.obj rca03.obj rca04.obj rca05.obj rca06.obj \
+#mscompaq          rca07.obj rca08.obj rca09.obj rca10.obj rca11.obj rca12.obj \
+#mscompaq          rca13.obj rcabyss.obj rcadwrit.obj rcaexp.obj rcaexp1.obj \
+#mscompaq          rcaexps.obj rcalf1.obj rcalfs.obj rcamess.obj rcamprof.obj \
+#mscompaq          rcaprnt.obj rcasplt.obj rcasplt1.obj rcasplts.obj tens.obj \
+#mscompaq          sinter.obj  iunitcheck.obj \
+#mscompaq          fmter.obj
+
+#msintelOBJECTS =  rca.obj rca01.obj rca02.obj rca03.obj rca04.obj rca05.obj rca06.obj \
+#msintel           rca07.obj rca08.obj rca09.obj rca10.obj rca11.obj rca12.obj \
+#msintel           rca13.obj rcabyss.obj rcadwrit.obj rcaexp.obj rcaexp1.obj \
+#msintel           rcaexps.obj rcalf1.obj rcalfs.obj rcamess.obj rcamprof.obj \
+#msintel           rcaprnt.obj rcasplt.obj rcasplt1.obj rcasplts.obj tens.obj \
+#msintel           sinter.obj iunitcheck.obj \
+#msintel	   fmter.obj
+
+#msportlandOBJECTS =  rca.o rca01.o rca02.o rca03.o rca04.o rca05.o rca06.o \
+#msportland           rca07.o rca08.o rca09.o rca10.o rca11.o rca12.o \
+#msportland           rca13.o rcabyss.o rcadwrit.o rcaexp.o rcaexp1.o \
+#msportland           rcaexps.o rcalf1.o rcalfs.o rcamess.o rcamprof.o \
+#msportland           rcaprnt.o rcasplt.o rcasplt1.o rcasplts.o tens.o \
+#msportland           sinter.o  iunitcheck.o \
+#msportland	   fmter.o
+
+#lnportlandOBJECTS =  rca.o rca01.o rca02.o rca03.o rca04.o rca05.o rca06.o \
+#lnportland           rca07.o rca08.o rca09.o rca10.o rca11.o rca12.o \
+#lnportland           rca13.o rcabyss.o rcadwrit.o rcaexp.o rcaexp1.o \
+#lnportland           rcaexps.o rcalf1.o rcalfs.o rcamess.o rcamprof.o \
+#lnportland           rcaprnt.o rcasplt.o rcasplt1.o rcasplts.o tens.o \
+#lnportland           sinter.o    iunitcheck.o \
+#lnportland	   fmter.o
+
+#lnintelOBJECTS =  rca.o rca01.o rca02.o rca03.o rca04.o rca05.o rca06.o \
+#lnintel           rca07.o rca08.o rca09.o rca10.o rca11.o rca12.o \
+#lnintel           rca13.o rcabyss.o rcadwrit.o rcaexp.o rcaexp1.o \
+#lnintel           rcaexps.o rcalf1.o rcalfs.o rcamess.o rcamprof.o \
+#lnintel           rcaprnt.o rcasplt.o rcasplt1.o rcasplts.o tens.o \
+#lnintel           sinter.o    iunitcheck.o \
+#lnintel	   fmter.o
+
+#genericOBJECTS =  rca.o rca01.o rca02.o rca03.o rca04.o rca05.o rca06.o \
+#generic           rca07.o rca08.o rca09.o rca10.o rca11.o rca12.o \
+#generic           rca13.o rcabyss.o rcadwrit.o rcaexp.o rcaexp1.o \
+#generic           rcaexps.o rcalf1.o rcalfs.o rcamess.o rcamprof.o \
+#generic           rcaprnt.o rcasplt.o rcasplt1.o rcasplts.o tens.o \
+#generic           sinter.o    iunitcheck.o \
+#generic	   fmter.o
+
+###########################
+########  TARGETS  ########
+###########################
+
+release: $(OBJECTS) RCACM 
+	$(FC) $(LFLAGS) $(OBJECTS) 
+	@echo rca_tens is now up to date
+
+clean :
+	rm -f *.o *.obj rca_tens.exe rca_tens.debug.exe rca_tens rca_tens.debug
+
+###########################
+#####  DEPENDENCIES  ######
+###########################
+
+OBJECTS: RCACM 
+
+OBJECTSD: RCACM 
+
+###########################
+########  RULES  ##########
+###########################
+
+.f.obj:                     # for release
+	$(FC) $(FFLAGS) $<
+
+.f.o:                     # for release
+	$(FC) $(FFLAGS) $<

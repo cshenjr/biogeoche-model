@@ -1,0 +1,10 @@
+in rcaexps.f
+after
+C        NEXT TRANSPORT FIELDS
+C     IF(ITIMESECS.GE.HYDBRK(ITIMHYD))  THEN
+< !------------------------------------------------------------------
+< !     Add by Yun Li, UMCES/HPL, 11-12-2008
+<       WRITE(OUT,'(A,I15,1X,A,I15)'),
+<      .           'RCAEXPS: Model Clock = ',ITIMESECS,
+<      .           ', Next Update@ ', NXHYDTSECS
+< !-----------------------------------------------------------------

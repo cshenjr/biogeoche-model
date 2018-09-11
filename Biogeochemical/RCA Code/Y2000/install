@@ -1,0 +1,110 @@
+#!/bin/sh
+#
+# run this shell to create the executable file
+#               Yun Li, UMCES/HPL, Jul-03-2011
+#
+###################################
+#####  PARAMETERS (by User)  ######
+###################################
+export myNX="84"             # number of RCA x-cells, = ROMS + 2
+export myNY="124"            # number of RCA y-cells, = ROMS + 2
+export myNZ="20"             # number of RCA z-cells, = ROMS
+export myMXBC="900"          # maximum boundary cells
+export myMXHYDFILES="100"    # maximum hydrodynamic files
+export myMXFUNCT="38400"     # maximum time records for functions
+export tuner_option=2        # 1=10sTest, 2=Eutrophication, 3=Pathogens
+                             # 4=ResidenceTime, 5=Tracer
+
+###################################
+#####     PATH (by User)     ######
+###################################
+export RCACODE_dir=$PWD/../Master_Code # path to RCA source code
+export TUNER_dir=$PWD/../TUNERS        # path to RCA TUNERS
+export PROJECT_dir=$PWD                # path to project files
+export BIN_dir=$PROJECT_dir            # path to executable file
+export BUILD_dir=$PROJECT_dir/BUILD    # path to temporary files when build
+export NETCDF=/usr/local               # path to local netcdf installed
+export NETCDF_INCDIR=$NETCDF/include   # path to netcdf *.in file
+export NETCDF_LIBDIR=$NETCDF/lib       # path to netcdf library file
+
+###################################
+#####    Compiler (by User)  ######
+###################################
+export FC="ifort -nologo -O3"          # compiler 
+export FFLAGS="-c -fpp"                # compile flags
+
+###################################
+#####  MATCH OPTION TO TUNER  #####
+###################################
+if [ $tuner_option == 1 ]; then       # 1 = 10sTest
+	export tuner="10sTest"
+        export mynosys="1"
+	export rca_target='rca_10s'
+
+elif [ $tuner_option == 2 ]; then
+	export tuner="Eutrophication" # 2 = Eutrophication
+        export mynosys="26"
+        export rca_target='rca_eutro'
+
+elif [ $tuner_option == 3 ]; then
+	export tuner="Pathogens"      # 3 = Pathogens
+        export mynosys="5"
+        export rca_target='rca_path'
+
+elif [ $tuner_option == 4 ]; then
+	export tuner="ResidenceTime"  # 4 = ResidenceTime
+        export mynosys="1"
+        export rca_target='rca_res'
+
+elif [ $tuner_option == 5 ]; then
+	export tuner="Tracer"         # 5 = Tracer
+        export mynosys="2"
+        export rca_target='rca_tracer'
+else
+	echo "ERROR: tuner_option DENIED!"
+        exit 
+fi
+
+####################### S T O P #############################
+############# DO NOT CHANGE ANY LINE BELOW ##################
+#############################################################
+cd $TUNER_dir/$tuner
+export tuner_fFILE="`ls -1 *.f`"
+export tuner_oFILE=$(echo $tuner_fFILE|sed 's/.f/.o/g')
+cd $RCACODE_dir/netcdf
+export nc_hFILE="`ls -1 nc*.h`"
+export nc_fFILE="`ls -1 nc*.f`"
+export nc_oFILE=$(echo $nc_fFILE|sed 's/.f/.o/g')
+export nc_fFILE=$(echo $nc_fFILE|sed 's/ /\/ /g')
+
+clear
+echo 'TUNER is setup for' $tuner 
+rm -rf $BUILD_dir
+mkdir $BUILD_dir
+echo "  (1) Copy Master_Code..."
+cp -rf $RCACODE_dir/* $BUILD_dir
+echo "  (2) Copy TUNERS ..."
+cp -rf $TUNER_dir/$tuner/* $BUILD_dir
+echo "  (3) Copy ROMS-RCA netcdf interface"
+mv $BUILD_dir/netcdf/* $BUILD_dir
+mv $BUILD_dir/ncTid_list.h_$tuner $BUILD_dir/ncTid_list.h
+echo "  (4) Set  Global parameter file RCACM"
+mv $BUILD_dir/mod_RCACM.Master $BUILD_dir/RCACM
+echo "  (5) Set  model grid#  NX=" $myNX ", NY=" $myNY ", NZ=" $myNZ
+sed -i "s/nx/$myNX/g" `grep 'nx' -rl $BUILD_dir/RCACM`
+sed -i "s/ny/$myNY/g" `grep 'ny' -rl $BUILD_dir/RCACM`
+sed -i "s/nz/$myNZ/g" `grep 'nz' -rl $BUILD_dir/RCACM`
+sed -i "s/nosys/$mynosys/g" `grep 'nosys' -rl $BUILD_dir/RCACM`
+sed -i "s/MXBC=750/MXBC=$myMXBC/g" `grep 'MXBC=750' -rl $BUILD_dir/RCACM`
+sed -i "s/MXHYDFILES=36/MXHYDFILES=$myMXHYDFILES/g" `grep 'MXHYDFILES=36' -rl $BUILD_dir/RCACM`
+sed -i "s/MXFUNCT=400/MXFUNCT=$myMXFUNCT/g" `grep 'MXFUNCT=400' -rl $BUILD_dir/RCACM`
+echo "  (6) Generate Makefile"
+mv $BUILD_dir/mod_makefile $BUILD_dir/makefile
+echo "Install the Package and generate shell file"
+cd $BUILD_dir
+make
+cd $PROJECT_dir
+rm -rf RCAF* $rca_target
+cp $BUILD_dir/$rca_target $BIN_dir
+ulimit -s unlimited
+echo $rca_target "in " $PROJECT_dir  " has been updated"

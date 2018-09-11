@@ -1,0 +1,110 @@
+C    CYCLE     LIST1     LIST2     LIST3     LIST4     LIST5   IDIAGDT  INPCHECK
+         0         0         0         0         0         0         0         0  
+C 
+   RCA - Hypoxia in Chesapeake Bay
+END
+C SYSTEM NAMES
+     SAL   PHYT1   PHYT2   PHYT3    RPOP    LPOP    RDOP    LDOP    PO4T    RPON
+    LPON    RDON    LDON    NH4T    NO23     BSI     SIT    RPOC    LPOC    RDOC
+    LDOC   EXDOC   REPOC   REDOC    O2EQ      DO
+C SYSTEM BYPASS OPTIONS    <-- 0=calculate; 1=skip  0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+C INTGRTYP    NEGSLN    SLCOPT    SMOLAR  ISMOLBCOPT 
+         4         0         0         1         1 
+C    TWARP     TZERO     IDTWQ
+      SECS     -99.0      1800
+C NUMBER OF STEPS IN STEP-SIZE HISTORY	 
+         1
+C       DT      TIME                                         <--- Model DT in sec
+       600   12420.00             <-- until 2001-Jan-05
+C  IPRINTG   IPRINTD   IPRINTR     NDMPS    TWARPP    IGDOPT    IDDOPT <--- PRINT INFO	 
+      7200     14400    432000         6      SECS         0         0
+C DETAILED DUMP SEGMENTS
+  46 108  10  46 108  20  57  65   1  57  65  20  54  33  10  14  28  1
+C DETAILED DUMP BYPASS OPT
+ 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+C INTERMEDIATE DUMPS
+  14  28  1  46 108  20  57  65   1  57  65  20  54  33  10  54  33  20  30 105  20
+C   MB OPT  IPRINTMB   TWARPMB  IAVMBOPT  ISTARTMB    IENDMB <--- MB=1 mass balance on
+         0     86400      SECS         0         0  31521960
+C ICOLLOPT,HYDCYCOPT,LNDWTROPT, IDIFFOPT, IECOMVER
+         0         0         0         0         0
+C IHYDDT       UNITS                                         <--- time interval of the hydro file
+      3600      SECS
+C SCALRX      SCALRY    SCALRZ
+       1.0       1.0       1.0
+C OPTION OF ROMS NETCDF (FORMAT:I10, IF 2, THEN READ VARNA,GRDNA,RVRNA,HISNA)
+./BUILD/varinfo.dat
+../Y2000/TRANS/cpb_grid_80x120_wf32.nc
+../Y2000/TRANS/cpb_frc_80x120_8516_river.nc
+../../roms/output2016/CB2016_avg_1207.nc
+C NO OF HYDRO FILES
+        37	
+../../roms/output2016/CB2016_avg_1206.nc
+../../roms/output2016/CB2016_avg_1207.nc
+../../roms/output2016/CB2016_avg_1208.nc
+../../roms/output2016/CB2016_avg_1209.nc
+../../roms/output2016/CB2016_avg_1210.nc
+../../roms/output2016/CB2016_avg_1211.nc
+../../roms/output2016/CB2016_avg_1212.nc
+../../roms/output2016/CB2016_avg_1213.nc
+../../roms/output2016/CB2016_avg_1214.nc
+../../roms/output2016/CB2016_avg_1215.nc
+../../roms/output2016/CB2016_avg_1216.nc
+../../roms/output2016/CB2016_avg_1217.nc
+../../roms/output2016/CB2016_avg_1218.nc
+../../roms/output2016/CB2016_avg_1219.nc
+../../roms/output2016/CB2016_avg_1220.nc
+../../roms/output2016/CB2016_avg_1221.nc
+../../roms/output2016/CB2016_avg_1222.nc
+../../roms/output2016/CB2016_avg_1223.nc
+../../roms/output2016/CB2016_avg_1224.nc
+../../roms/output2016/CB2016_avg_1225.nc
+../../roms/output2016/CB2016_avg_1226.nc
+../../roms/output2016/CB2016_avg_1227.nc
+../../roms/output2016/CB2016_avg_1228.nc
+../../roms/output2016/CB2016_avg_1229.nc
+../../roms/output2016/CB2016_avg_1230.nc
+../../roms/output2016/CB2016_avg_1231.nc
+../../roms/output2016/CB2016_avg_1232.nc
+../../roms/output2016/CB2016_avg_1233.nc
+../../roms/output2016/CB2016_avg_1234.nc
+../../roms/output2016/CB2016_avg_1235.nc
+../../roms/output2016/CB2016_avg_1236.nc
+../../roms/output2016/CB2016_avg_1237.nc
+../../roms/output2016/CB2016_avg_1238.nc
+../../roms/output2016/CB2016_avg_1239.nc
+../../roms/output2016/CB2016_avg_1240.nc
+../../roms/output2016/CB2016_avg_1241.nc
+../../roms/output2016/CB2016_avg_1242.nc
+C BOUNDARY CONDITION FILE NAME          BINARY OPT
+./TRANS/Y2016_eutr_bry.nc                2
+C POINT SURCE FILE NAME                 BINARY OPT
+NULL
+C NON-POINT SURCE FILE NAME             BINARY OPT
+NULL
+C FALL_LINE LOAD FILE NAME              BINARY OPT
+NULL
+C ATMOSPHERIC LOAD FILE NAME            BINARY OPT
+NULL
+C PARA, CONS, TVFs FILE NAME            BINARY OPT
+ROMSeutro_1strun.inp                     0
+C INITIAL CONDITION FILE NAME           BINARY OPT
+./TRANS/Y2016_eutr_ini.nc                2
+C STABILITY CONCENTRATIONS
+stability  5.00E+003 3.00E+003 3.00E+003 3.00E+003 1.00E+003 1.00E+002 2.00E+005
+cont..     5.00E+002 1.00E+005 5.00E+002 1.00E+002 1.00E+003 5.00E+002 1.00E+003
+cont..     1.00E+003 1.00E+003 1.00E+003 1.00E+003 1.00E+003 2.00E+003 5.00E+003
+cont..     3.00E+003 5.00E+005 3.00E+005 5.00E+003 1.00E+003
+C FLOOR CONCENTRATIONS
+accuracy   1.00E-021 1.00E-002 5.00E-002 1.00E-021 1.00E-021 1.00E-021 1.00E-021
+cont..     1.00E-021 1.00E-021 1.00E-021 1.00E-021 1.00E-021 1.00E-021 1.00E-021
+cont..     1.00E-021 1.00E-021 1.00E-021 1.00E-021 1.00E-021 1.00E-021 1.00E-021
+cont..     1.00E-021 1.00E-021 1.00E-021 1.00E-021 1.00E-021
+C Global Dumps Specified by Layer or Individual Segments
+  0
+  1 10 26  1 10 19  1 13 20  1 12 19  1  9 20  1 11 20  1 13 20  1 12 23  1
+  1  2 49  1  2 49 10 11 53  1 11 53 10 15 40  1 15 40 10 19 21  1 19 21 10
+  1 12 11  1 12 11  2 12 11  3 12 11  5 12 11  7 12 11  8 12 11  9 12 11 10
+  0 
+

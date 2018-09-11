@@ -1,0 +1,91 @@
+######################################################################
+#
+#  GDPME Makefile for Linux (Intel compiler)
+#
+#  Use "make release" for optimized code
+#      "make debug"   for debug code
+#      "make clean"   for removing object files and executables
+#
+#######################################################################
+
+.SUFFIXES: .obj .o .f .h .mod
+FC = ifort -nologo -O3 # -C -gen-interface -warn interface -traceback
+
+################# N e t c d f    I n t e r f a c e ####################
+NETCDF_INCDIR = $(NETCDF)/include
+NETCDF_LIBDIR = $(NETCDF)/lib
+nc_hFILE = ncdef_var.h ncinq_dim.h ncdef_dim.h ncdim_info.h
+nc_fFILE = nccrt_rcasys.f ncset_ncparams.f nccheck_status.f \
+	ncbry_time.f   ncbry_BCOPT.f  ncbry_NOBC.f   ncbry_IBCBBC.f  \
+	ncwrt_n1dvar.f ncwrt_n2dvar.f ncwrt_t1dvar.f ncwrt_g2dvar.f \
+	ncwrt_g3dvar.f ncwrt_rstvar.f \
+	ncini_CARAY.f ncini_time.f \
+	ncprm_1Dinterp.f ncprm_2Dinterp.f \
+	ncprm_set_t1dvar.f ncprm_set_n2dvar.f ncprm_set_n3dvar.f \
+	ncprm_set_TSS.f \
+	ncset_transport.f ncset_oceantime.f \
+	ncset_horizgrid.f ncset_vertigrid.f \
+	ncsed_chk_ICREAD.f ncsed_chk_VREAD.f \
+	ncsed_set_n2dvar.f ncsed_ini_g2dvar.f ncsed_ini_g3dvar.f \
+	ncsed_wrt_g2dXY.f  ncsed_wrt_g2dvar.f ncsed_wrt_t1dvar.f \
+	ncsed_rst_t1dvar.f ncsed_rst_g2dvar.f ncsed_rst_g3dvar.f 
+nc_oFILE = nccrt_rcasys.o ncset_ncparams.o nccheck_status.o \
+        ncbry_time.o   ncbry_BCOPT.o  ncbry_NOBC.o   ncbry_IBCBBC.o  \
+        ncwrt_n1dvar.o ncwrt_n2dvar.o ncwrt_t1dvar.o ncwrt_g2dvar.o \
+        ncwrt_g3dvar.o ncwrt_rstvar.o \
+	ncini_CARAY.o ncini_time.o \
+        ncprm_1Dinterp.o ncprm_2Dinterp.o \
+        ncprm_set_t1dvar.o ncprm_set_n2dvar.o ncprm_set_n3dvar.o \
+	ncprm_set_TSS.o \
+        ncset_transport.o ncset_oceantime.o \
+        ncset_horizgrid.o ncset_vertigrid.o \
+        ncsed_chk_ICREAD.o ncsed_chk_VREAD.o \
+	ncsed_set_n2dvar.o ncsed_ini_g2dvar.o ncsed_ini_g3dvar.o \
+        ncsed_wrt_g2dXY.o  ncsed_wrt_g2dvar.o ncsed_wrt_t1dvar.o \
+	ncsed_rst_t1dvar.o ncsed_rst_g2dvar.o ncsed_rst_g3dvar.o 
+
+#### Flags with a "D" at the end are for the debug target  #####
+
+#####  COMPILING FLAGS  #####
+FFLAGS  = -c -fpp
+
+#####  LINKING FLAGS  #####
+LFLAGS = -o $(rca_target)
+
+OBJECTS =  rca.o rca01.o rca02.o rca03.o rca04.o rca05.o rca06.o \
+	rca07.o rca08.o rca09.o rca10.o rca11.o rca12.o \
+	rca13.o rcabyss.o rcadwrit.o rcaexp.o rcaexp1.o \
+	rcaexps.o rcalf1.o rcalfs.o rcamess.o rcamprof.o \
+	rcaprnt.o rcasplt.o rcasplt1.o rcasplts.o \
+	$(tuner_oFILE) \
+	sinter.o iunitcheck.o \
+	fmter.o $(nc_oFILE)
+
+###########################
+########  TARGETS  ########
+###########################
+
+release: $(OBJECTS) RCACM $(nc_fFILE) 
+	$(FC) $(LFLAGS) -I$(NETCDF_INCDIR) $(OBJECTS) -L$(NETCDF_LIBDIR) -lnetcdf 
+	@echo $(rca_target) is now up-to-date
+
+clean :
+	rm -rf *.o $(rca_target) RCAF* 
+
+###########################
+#####  DEPENDENCIES  ######
+###########################
+
+OBJECTS: RCACM $(fFILE) netcdf.mod $(hFILE)
+
+OBJECTSD: RCACM $(fFILE)
+
+###########################
+########  RULES  ##########
+###########################
+
+.f.obj:                   # for release
+	$(FC) $(FFLAGS) -I$(NETCDF_INCDIR) -L$(NETCDF_LIBDIR) -lnetcdf $<
+
+.f.o:                     # for release
+	$(FC) $(FFLAGS) -I$(NETCDF_INCDIR) -L$(NETCDF_LIBDIR) -lnetcdf $<
